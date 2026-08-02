@@ -1,6 +1,7 @@
 /* ============================================================
    chrsx3.com
-   Interfaz acromática. El color lo ponen las capturas de los proyectos.
+   Base acromática + un solo acento señal. El color lo ponen las
+   capturas de los proyectos, el acento lo pone la infraestructura.
    ============================================================ */
 
 :root {
@@ -14,7 +15,12 @@
   --text-2: #9a9a9a;
   --text-3: #6e6e6e;
 
+  --accent: #3fdb7e;
+  --accent-ink: #0b120d;
+  --accent-soft: rgba(63, 219, 126, 0.14);
+
   --ff: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --ff-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
   --ff-mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
 
   --shell: min(1080px, 100% - 2.5rem);
@@ -43,6 +49,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Grano sutil para que el negro no sea plano */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -53,7 +75,7 @@ a {
 }
 
 :focus-visible {
-  outline: 1px solid var(--text-2);
+  outline: 1px solid var(--accent);
   outline-offset: 3px;
   border-radius: 3px;
 }
@@ -63,7 +85,7 @@ a {
   margin-inline: auto;
 }
 
-/* ---------- tipografía: contenida, no gritada ---------- */
+/* ---------- tipografía ---------- */
 
 h1,
 h2,
@@ -113,6 +135,16 @@ p {
   letter-spacing: 0.02em;
   text-decoration: none;
   color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .nav-links {
@@ -145,36 +177,81 @@ p {
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
+  transition: background 0.15s ease;
 }
 
 .nav-cta:hover {
-  background: #e2e2e2;
+  background: var(--accent);
+  color: var(--accent-ink) !important;
 }
 
-/* ---------- hero: pequeño y seguro ---------- */
+/* ---------- hero ---------- */
 
 .hero {
-  padding-block: clamp(4rem, 10vw, 7.5rem) clamp(2.5rem, 5vw, 4rem);
+  position: relative;
+  padding-block: clamp(4.5rem, 11vw, 8.5rem) clamp(3rem, 6vw, 4.5rem);
 }
 
-.hero h1,
-.hero-sub {
-  max-width: 38rem;
+.hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--ff-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.34rem 0.8rem 0.34rem 0.65rem;
+  background: var(--surface);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .hero h1 {
-  font-size: clamp(1.75rem, 3.5vw, 2.55rem);
-  font-weight: 500;
-  margin-block: 1.1rem 1.15rem;
+  font-family: var(--ff-display);
+  font-optical-sizing: auto;
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+  font-weight: 480;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  max-width: 17ch;
+  margin-block: 1.4rem 1.3rem;
 }
 
-.hero h1 span {
+.hero h1 em {
+  font-style: italic;
+  font-weight: 420;
   color: var(--text-3);
+}
+
+.hero h1 .dot {
+  color: var(--accent);
+  font-style: normal;
 }
 
 .hero-sub {
   color: var(--text-2);
-  font-size: 1rem;
+  font-size: 1.02rem;
   max-width: 40rem;
 }
 
@@ -182,7 +259,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  margin-top: 1.9rem;
+  margin-top: 2.1rem;
 }
 
 .btn {
@@ -204,7 +281,8 @@ p {
 }
 
 .btn-solid:hover {
-  background: #e2e2e2;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .btn-ghost {
@@ -215,6 +293,69 @@ p {
 .btn-ghost:hover {
   border-color: #313131;
   color: var(--text);
+}
+
+/* El residente del servidor: sentado sobre la línea de la sección */
+.hero-cat {
+  position: absolute;
+  right: 0.25rem;
+  bottom: -1px;
+  width: 72px;
+  height: 66px;
+  text-decoration: none;
+  display: block;
+}
+
+.hero-cat .cat-sprite {
+  width: 72px;
+  height: 66px;
+  background-image: url('/cat/sit.png');
+  background-size: 72px 264px;
+  background-position: 0 0;
+  image-rendering: pixelated;
+  animation: cat-sit 3.6s steps(4) infinite;
+}
+
+@keyframes cat-sit {
+  to {
+    background-position-y: -264px;
+  }
+}
+
+.hero-cat .cat-tag {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  font-family: var(--ff-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.28rem 0.5rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+
+.hero-cat:hover .cat-tag,
+.hero-cat:focus-visible .cat-tag {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 720px) {
+  .hero-cat {
+    position: static;
+    margin: 2.2rem 0 0 auto;
+  }
+  .hero-cat .cat-tag {
+    display: none;
+  }
 }
 
 /* ---------- secciones ---------- */
@@ -230,12 +371,15 @@ p {
   justify-content: space-between;
   gap: 1.5rem;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
+  margin-bottom: 2.2rem;
 }
 
 .section-head h2 {
-  font-size: 1.15rem;
+  font-family: var(--ff-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .section-head .mono {
@@ -264,12 +408,13 @@ p {
   background: var(--surface);
   overflow: hidden;
   text-decoration: none;
-  transition: border-color 0.18s ease, background 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
 .card:hover {
-  border-color: #313131;
+  border-color: #3a3a3a;
   background: var(--surface-2);
+  transform: translateY(-2px);
 }
 
 .card-shot {
@@ -284,11 +429,11 @@ p {
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card:hover .card-shot img {
-  transform: scale(1.025);
+  transform: scale(1.035);
 }
 
 /* Marcador para proyectos sin captura, en vez de un hueco vacío */
@@ -342,6 +487,12 @@ p {
   border-radius: 999px;
   padding: 0.18rem 0.55rem;
   white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover .pill {
+  color: var(--accent);
+  border-color: var(--accent-soft);
 }
 
 .card-line {
@@ -361,8 +512,18 @@ p {
   transition: color 0.15s ease;
 }
 
+.card-host .arrow {
+  display: inline-block;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
 .card:hover .card-host {
   color: var(--text);
+}
+
+.card:hover .card-host .arrow {
+  transform: translate(2px, -2px);
+  color: var(--accent);
 }
 
 /* ---------- servicios ---------- */
@@ -380,6 +541,25 @@ p {
 .service {
   background: var(--bg);
   padding: 1.35rem 1.25rem;
+  transition: background 0.15s ease;
+}
+
+.service:hover {
+  background: var(--surface);
+}
+
+.service .idx {
+  font-family: var(--ff-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  color: var(--text-3);
+  display: block;
+  margin-bottom: 0.7rem;
+  transition: color 0.15s ease;
+}
+
+.service:hover .idx {
+  color: var(--accent);
 }
 
 .service h3 {
@@ -482,17 +662,74 @@ p {
   text-align: right;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.contact-row .v .arrow {
+  display: inline-block;
+  transition: transform 0.18s ease, color 0.18s ease;
 }
 
 .contact-row:hover .v {
   color: var(--text);
 }
 
+.contact-row:hover .v .arrow {
+  transform: translate(2px, -2px);
+  color: var(--accent);
+}
+
 /* ---------- pie ---------- */
 
 .foot {
   border-top: 1px solid var(--line-soft);
-  padding-block: 1.75rem 2.5rem;
+  padding-block: 1.75rem 0;
+}
+
+.foot-cat-lane {
+  position: relative;
+  height: 58px;
+  overflow: hidden;
+}
+
+.foot-cat {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  animation: cat-lane 18s linear infinite alternate;
+}
+
+.foot-cat img {
+  width: 64px;
+  height: auto;
+  image-rendering: pixelated;
+  animation: cat-flip 36s steps(1) infinite;
+}
+
+@keyframes cat-lane {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(min(1080px, 100vw - 2.5rem) - 64px));
+  }
+}
+
+@keyframes cat-flip {
+  0%,
+  49.9% {
+    transform: scaleX(1);
+  }
+  50%,
+  100% {
+    transform: scaleX(-1);
+  }
+}
+
+.foot-in {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
@@ -500,6 +737,7 @@ p {
   font-family: var(--ff-mono);
   font-size: 0.68rem;
   color: var(--text-3);
+  padding-block: 1rem 2.25rem;
 }
 
 /* ---------- entrada ---------- */
@@ -520,6 +758,22 @@ p {
   }
 }
 
+/* ---------- reveals al hacer scroll (solo con JS y sin reduced-motion) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  html.js-reveal [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -532,10 +786,20 @@ p {
   .card-shot img,
   .card,
   .btn,
-  .contact-row {
+  .contact-row,
+  .service {
     transition: none;
   }
   .card:hover .card-shot img {
     transform: none;
+  }
+  .status-dot {
+    animation: none;
+  }
+  .hero-cat .cat-sprite {
+    animation: none;
+  }
+  .foot-cat-lane {
+    display: none;
   }
 }

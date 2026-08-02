@@ -3,6 +3,7 @@ import '../styles/global.css'
 import { meta, work, services, stack } from '../data/site'
 
 const year = 2026
+const petFloat = work.find((w) => w.name === 'Pet Float')
 ---
 
 <!doctype html>
@@ -23,10 +24,14 @@ const year = 2026
     <meta property="og:locale" content="es_CL" />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <script is:inline>
+      document.documentElement.classList.add('js-reveal')
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340..640;1,9..144,340..640&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
@@ -50,7 +55,7 @@ const year = 2026
   <body>
     <header class="nav">
       <div class="shell nav-in">
-        <a class="brand" href="#top">chrsx3</a>
+        <a class="brand" href="#top"><span class="brand-dot" aria-hidden="true"></span>chrsx3</a>
         <nav class="nav-links">
           <a href="#trabajo">Trabajo</a>
           <a href="#servicios">Servicios</a>
@@ -65,7 +70,7 @@ const year = 2026
       <section class="shell hero">
         <p class="mono rise">{meta.name} — {meta.city}</p>
         <h1 class="rise" style="animation-delay:.05s">
-          Construyo software para empresas <span>y lo mantengo corriendo.</span>
+          Construyo software para empresas <em>y lo mantengo corriendo<span class="dot">.</span></em>
         </h1>
         <p class="hero-sub rise" style="animation-delay:.1s">
           Sitios, sistemas internos y aplicaciones móviles. Ingeniero informático con formación
@@ -78,19 +83,35 @@ const year = 2026
           </a>
           <a class="btn btn-ghost" href="#trabajo">Ver el trabajo</a>
         </div>
+        <p class="hero-status rise" style="animation-delay:.2s; margin-top: 2.1rem">
+          <span class="status-dot" aria-hidden="true"></span>
+          {work.length} proyectos en producción · Todos los sistemas operacionales
+        </p>
+
+        <a
+          class="hero-cat rise"
+          style="animation-delay:.3s"
+          href={petFloat?.url}
+          target="_blank"
+          rel="noopener"
+          aria-label="Pet Float, la app de Christian en Google Play"
+        >
+          <span class="cat-tag" aria-hidden="true">Pet Float ↗</span>
+          <span class="cat-sprite" role="img" aria-label="Gato de píxeles sentado"></span>
+        </a>
       </section>
 
       <!-- ===== trabajo ===== -->
       <section class="shell section" id="trabajo">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <h2>Trabajo</h2>
           <span class="mono">En producción · {work.length} proyectos</span>
         </div>
 
         <div class="work">
           {
-            work.map((w) => (
-              <a class="card" href={w.url} target="_blank" rel="noopener">
+            work.map((w, i) => (
+              <a class="card" href={w.url} target="_blank" rel="noopener" data-reveal style={`--reveal-delay:${i * 70}ms`}>
                 {w.shot ? (
                   <div class="card-shot">
                     <img
@@ -115,7 +136,7 @@ const year = 2026
                   </div>
                   <p class="card-line">{w.line}</p>
                   <span class="card-host">
-                    {w.host} <span aria-hidden="true">↗</span>
+                    {w.host} <span class="arrow" aria-hidden="true">↗</span>
                   </span>
                 </div>
               </a>
@@ -126,15 +147,16 @@ const year = 2026
 
       <!-- ===== servicios ===== -->
       <section class="shell section" id="servicios">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <h2>Qué hago</h2>
           <span class="mono">Hablas directo con quien escribe el código</span>
         </div>
 
         <div class="services">
           {
-            services.map((s) => (
-              <div class="service">
+            services.map((s, i) => (
+              <div class="service" data-reveal style={`--reveal-delay:${i * 50}ms`}>
+                <span class="idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <h3>{s.title}</h3>
                 <p>{s.body}</p>
               </div>
@@ -145,12 +167,12 @@ const year = 2026
 
       <!-- ===== sobre mí ===== -->
       <section class="shell section" id="sobre-mi">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <h2>Sobre mí</h2>
         </div>
 
         <div class="two-col">
-          <div class="about">
+          <div class="about" data-reveal>
             <p>
               Me llamo <strong>Christian Alcántara</strong> y vivo en Santiago. Estudié
               <strong> diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después
@@ -169,7 +191,7 @@ const year = 2026
             </p>
           </div>
 
-          <dl>
+          <dl data-reveal style="--reveal-delay:80ms; margin: 0">
             {
               Object.entries(stack).map(([group, items]) => (
                 <div class="stack-row">
@@ -184,31 +206,53 @@ const year = 2026
 
       <!-- ===== contacto ===== -->
       <section class="shell section" id="contacto">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <h2>Hablemos</h2>
           <span class="mono">Disponible para proyectos</span>
         </div>
 
-        <div class="contact-rows">
+        <div class="contact-rows" data-reveal>
           <a class="contact-row" href={meta.whatsapp} target="_blank" rel="noopener">
-            <span class="k">WhatsApp</span><span class="v">{meta.phoneHuman} ↗</span>
+            <span class="k">WhatsApp</span><span class="v">{meta.phoneHuman} <span class="arrow" aria-hidden="true">↗</span></span>
           </a>
           <a class="contact-row" href={`mailto:${meta.email}`}>
-            <span class="k">Correo</span><span class="v">{meta.email} ↗</span>
+            <span class="k">Correo</span><span class="v">{meta.email} <span class="arrow" aria-hidden="true">↗</span></span>
           </a>
           <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
-            <span class="k">LinkedIn</span><span class="v">Christian Alcántara ↗</span>
+            <span class="k">LinkedIn</span><span class="v">Christian Alcántara <span class="arrow" aria-hidden="true">↗</span></span>
           </a>
           <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
-            <span class="k">GitHub</span><span class="v">@chrx3 ↗</span>
+            <span class="k">GitHub</span><span class="v">@chrx3 <span class="arrow" aria-hidden="true">↗</span></span>
           </a>
         </div>
       </section>
     </main>
 
     <footer class="shell foot">
-      <span>© {year} Christian Alcántara · Santiago de Chile</span>
-      <span>Astro · servidor propio</span>
+      <div class="foot-cat-lane" aria-hidden="true">
+        <span class="foot-cat">
+          <img src="/cat/walk.webp" alt="" width="64" height="50" loading="lazy" decoding="async" />
+        </span>
+      </div>
+      <div class="foot-in">
+        <span>© {year} Christian Alcántara · Santiago de Chile</span>
+        <span>Astro · servidor propio</span>
+      </div>
     </footer>
+
+    <script is:inline>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-in')
+              io.unobserve(entry.target)
+            }
+          }
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
+      )
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
+    </script>
   </body>
 </html>
