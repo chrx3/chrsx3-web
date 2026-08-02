@@ -23,7 +23,6 @@ export const board = [
   { host: 'katemi.cl', url: 'https://katemi.cl', sector: 'Ingeniería y construcción' },
   { host: 'hminovachile.cl', url: 'https://hminovachile.cl', sector: 'Energía y climatización' },
   { host: 'pedi.cl', url: 'https://pedi.cl', sector: 'Gastronomía' },
-  { host: 'modpack.chrsx3.com', url: 'https://modpack.chrsx3.com', sector: 'Gaming' },
   {
     host: 'Pet Float · Google Play',
     url: 'https://play.google.com/store/apps/details?id=com.chrsx3.petfloat',
