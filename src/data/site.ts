@@ -1,7 +1,6 @@
 export const meta = {
   name: 'Christian Alcántara',
   alias: 'Chrsx3',
-  role: 'Ingeniero de software',
   city: 'Santiago de Chile',
   email: 'chris.alc.13@gmail.com',
   phone: '+56984706809',
@@ -12,44 +11,68 @@ export const meta = {
   linkedin: 'https://www.linkedin.com/in/christian-alcántara-234888213/',
   github: 'https://github.com/chrx3',
   description:
-    'Ingeniero de software en Santiago de Chile. Construyo sitios, sistemas internos y aplicaciones móviles para empresas, y los mantengo corriendo en producción.',
+    'Ingeniero de software en Santiago de Chile. Construyo sitios, sistemas internos y aplicaciones móviles, y los mantengo corriendo en producción.',
 }
 
 /**
- * Solo proyectos con autorización explícita del cliente o propios.
- * Los descriptores salen de la propia meta description de cada sitio.
+ * Solo proyectos autorizados o propios.
+ * Los textos salen de la propia copia de cada sitio, no de inferencias.
  */
-export const board = [
-  { host: 'katemi.cl', url: 'https://katemi.cl', sector: 'Ingeniería y construcción' },
-  { host: 'hminovachile.cl', url: 'https://hminovachile.cl', sector: 'Energía y climatización' },
-  { host: 'pedi.cl', url: 'https://pedi.cl', sector: 'Gastronomía' },
+export const work = [
   {
-    host: 'Pet Float · Google Play',
+    name: 'Pedi',
+    tag: 'Producto propio',
+    host: 'pedi.cl',
+    url: 'https://pedi.cl',
+    shot: '/shots/pedi.jpg',
+    line: 'La carta en un QR y el pedido llega armado al WhatsApp del local. Sin apps intermediarias y sin comisión por venta.',
+  },
+  {
+    name: 'Katemi',
+    tag: 'Sitio corporativo',
+    host: 'katemi.cl',
+    url: 'https://katemi.cl',
+    shot: '/shots/katemi.jpg',
+    line: 'Proyectos de ingeniería, construcción e instalaciones para los sectores comercial, industrial y de servicios.',
+  },
+  {
+    name: 'HM Inova',
+    tag: 'Sitio corporativo',
+    host: 'hminovachile.cl',
+    url: 'https://hminovachile.cl',
+    shot: '/shots/hminova.jpg',
+    line: 'Energía solar fotovoltaica, servicios eléctricos, electromovilidad y climatización para viviendas e instituciones.',
+  },
+  {
+    name: 'Pet Float',
+    tag: 'App publicada',
+    host: 'Google Play',
     url: 'https://play.google.com/store/apps/details?id=com.chrsx3.petfloat',
-    sector: 'App móvil',
+    shot: null,
+    line: 'Aplicación Android publicada en Google Play, con panel web para administrar contenido.',
   },
 ]
 
 export const services = [
   {
     title: 'Sitios corporativos',
-    body: 'La cara pública de tu empresa: rápida, indexable en Google y hecha para que el visitante te contacte. Diseño y desarrollo con la misma persona.',
+    body: 'La cara pública de tu empresa: rápida, indexable y hecha para que el visitante te contacte.',
   },
   {
     title: 'Sistemas a medida',
-    body: 'Dashboards, paneles de administración y automatizaciones para reemplazar las planillas que ya no dan más. Con usuarios, permisos y datos en vivo.',
+    body: 'Paneles de administración y automatizaciones para reemplazar las planillas que ya no dan más.',
   },
   {
     title: 'Aplicaciones móviles',
-    body: 'Desarrollo y publicación en Google Play, con panel web para administrar el contenido sin depender de mí.',
+    body: 'Desarrollo y publicación en Google Play, con panel web para administrar el contenido.',
   },
   {
     title: 'Integraciones',
-    body: 'Conectar lo que ya usas: WhatsApp, pasarelas de pago, APIs de terceros y sistemas heredados que nadie quiere tocar.',
+    body: 'WhatsApp, pasarelas de pago, APIs de terceros y sistemas heredados que nadie quiere tocar.',
   },
   {
     title: 'Infraestructura',
-    body: 'Despliegue, dominios, certificados y monitoreo en servidor propio. Lo que construyo lo dejo corriendo, no te lo entrego y desaparezco.',
+    body: 'Despliegue, dominios, certificados y monitoreo en servidor propio. Lo dejo corriendo, no desaparezco.',
   },
 ]
 

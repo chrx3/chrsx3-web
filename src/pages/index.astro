@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css'
-import { meta, board, services, stack } from '../data/site'
+import { meta, work, services, stack } from '../data/site'
 
 const year = 2026
 ---
@@ -14,7 +14,7 @@ const year = 2026
     <meta name="description" content={meta.description} />
     <link rel="canonical" href="https://chrsx3.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#070c1e" />
+    <meta name="theme-color" content="#121212" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://chrsx3.com/" />
@@ -26,7 +26,7 @@ const year = 2026
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
@@ -50,7 +50,7 @@ const year = 2026
   <body>
     <header class="nav">
       <div class="shell nav-in">
-        <a class="brand" href="#top">chrsx<span>3</span></a>
+        <a class="brand" href="#top">chrsx3</a>
         <nav class="nav-links">
           <a href="#trabajo">Trabajo</a>
           <a href="#servicios">Servicios</a>
@@ -63,54 +63,64 @@ const year = 2026
     <main id="top">
       <!-- ===== hero ===== -->
       <section class="shell hero">
-        <p class="eyebrow rise">{meta.name} · {meta.city}</p>
-        <h1 class="rise" style="animation-delay:.06s">
-          Software que llega a producción <em>y se queda ahí.</em>
+        <p class="mono rise">{meta.name} — {meta.city}</p>
+        <h1 class="rise" style="animation-delay:.05s">
+          Construyo software para empresas <span>y lo mantengo corriendo.</span>
         </h1>
-        <p class="hero-sub rise" style="animation-delay:.12s">
-          Ingeniero informático con formación previa en diseño gráfico. Construyo sitios, sistemas
-          internos y aplicaciones móviles para empresas en Chile, y los mantengo corriendo en
-          <strong>mi propio servidor</strong>.
+        <p class="hero-sub rise" style="animation-delay:.1s">
+          Sitios, sistemas internos y aplicaciones móviles. Ingeniero informático con formación
+          previa en diseño gráfico. Trabajo con clientes en Chile y administro el servidor donde
+          vive todo lo que ves acá.
         </p>
-        <div class="hero-actions rise" style="animation-delay:.18s">
-          <a class="btn btn-primary" href={meta.whatsapp} target="_blank" rel="noopener">
+        <div class="hero-actions rise" style="animation-delay:.15s">
+          <a class="btn btn-solid" href={meta.whatsapp} target="_blank" rel="noopener">
             Escríbeme por WhatsApp
           </a>
-          <a class="btn btn-ghost" href="#contacto">Ver contacto</a>
+          <a class="btn btn-ghost" href="#trabajo">Ver el trabajo</a>
         </div>
       </section>
 
-      <!-- ===== tablero en vivo — elemento firma ===== -->
-      <section
-        class="shell rise"
-        id="trabajo"
-        style="animation-delay:.24s"
-        aria-label="Servicios en producción"
-      >
-        <div class="board">
-          <div class="board-head">
-            <span class="board-live"><i class="dot" aria-hidden="true"></i> En producción</span>
-            <span>{board.length} servicios públicos</span>
-          </div>
+      <!-- ===== trabajo ===== -->
+      <section class="shell section" id="trabajo">
+        <div class="section-head">
+          <h2>Trabajo</h2>
+          <span class="mono">En producción · {work.length} proyectos</span>
+        </div>
 
+        <div class="work">
           {
-            board.map((b) => (
-              <a class="board-row" href={b.url} target="_blank" rel="noopener">
-                <i class="dot" aria-hidden="true" />
-                <span class="board-host">{b.host}</span>
-                <span class="board-sector">{b.sector}</span>
-                <span class="board-arrow" aria-hidden="true">
-                  ↗
-                </span>
+            work.map((w) => (
+              <a class="card" href={w.url} target="_blank" rel="noopener">
+                {w.shot ? (
+                  <div class="card-shot">
+                    <img
+                      src={w.shot}
+                      alt={`Captura del sitio ${w.name}`}
+                      width="1920"
+                      height="1200"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                ) : (
+                  <div class="card-shot is-empty">
+                    <span>{w.name}</span>
+                  </div>
+                )}
+
+                <div class="card-body">
+                  <div class="card-top">
+                    <span class="card-name">{w.name}</span>
+                    <span class="pill">{w.tag}</span>
+                  </div>
+                  <p class="card-line">{w.line}</p>
+                  <span class="card-host">
+                    {w.host} <span aria-hidden="true">↗</span>
+                  </span>
+                </div>
               </a>
             ))
           }
-
-          <p class="board-foot">
-            Todos los enlaces abren el sitio real, no una captura. Además opero sistemas internos
-            para clientes que no puedo mostrar públicamente. Estoy sumando el resto de los
-            proyectos a esta lista.
-          </p>
         </div>
       </section>
 
@@ -118,13 +128,10 @@ const year = 2026
       <section class="shell section" id="servicios">
         <div class="section-head">
           <h2>Qué hago</h2>
-          <p class="section-note">
-            Trabajo solo, así que hablas directo con quien escribe el código. Sin capas de gestión
-            en el medio.
-          </p>
+          <span class="mono">Hablas directo con quien escribe el código</span>
         </div>
 
-        <div class="grid-services">
+        <div class="services">
           {
             services.map((s) => (
               <div class="service">
@@ -136,7 +143,7 @@ const year = 2026
         </div>
       </section>
 
-      <!-- ===== sobre mí + stack ===== -->
+      <!-- ===== sobre mí ===== -->
       <section class="shell section" id="sobre-mi">
         <div class="section-head">
           <h2>Sobre mí</h2>
@@ -145,30 +152,28 @@ const year = 2026
         <div class="two-col">
           <div class="about">
             <p>
-              Me llamo <strong>Christian Alcántara</strong> y vivo en Santiago. Empecé estudiando
-              <strong> diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después me
-              titulé de <strong>Ingeniería Informática en Duoc UC</strong>. Esa combinación explica
-              por qué no te entrego un sistema que funciona pero se ve mal, ni uno bonito que se
-              cae.
+              Me llamo <strong>Christian Alcántara</strong> y vivo en Santiago. Estudié
+              <strong> diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después
+              <strong> Ingeniería Informática en Duoc UC</strong>. Esa mezcla es la razón de que me
+              importe tanto cómo se ve un sistema como si se cae.
             </p>
             <p>
               Desde 2023 trabajo como <strong>desarrollador full-stack en TSG Environmental
-              Chile</strong>, en un equipo de dos personas dentro del área de Innovación y
-              Desarrollo. Ahí me toca revivir sistemas heredados, levantar apps móviles y sostener
-              un volumen alto de proyectos con React, Next.js y Python.
+              Chile</strong>, en un equipo de dos personas del área de Innovación y Desarrollo.
+              Revivo sistemas heredados, levanto aplicaciones móviles y sostengo un volumen alto de
+              proyectos con React, Next.js y Python.
             </p>
             <p>
-              En paralelo llevo mis propios proyectos y clientes. Administro el servidor donde vive
-              todo lo de esta página: dominios, certificados, despliegues y monitoreo. Cuando termino
-              un proyecto no lo entrego y desaparezco, queda funcionando y yo sigo respondiendo.
+              En paralelo llevo mis propios clientes y proyectos. Administro el servidor donde
+              corren: dominios, certificados, despliegues y monitoreo.
             </p>
           </div>
 
-          <dl class="stack-list">
+          <dl>
             {
               Object.entries(stack).map(([group, items]) => (
-                <div class="stack-group">
-                  <dt>{group}</dt>
+                <div class="stack-row">
+                  <dt class="mono">{group}</dt>
                   <dd>{items.join(' · ')}</dd>
                 </div>
               ))
@@ -179,35 +184,31 @@ const year = 2026
 
       <!-- ===== contacto ===== -->
       <section class="shell section" id="contacto">
-        <div class="contact">
-          <p class="eyebrow">Disponible para proyectos</p>
-          <h2>¿Tienes algo que construir?</h2>
-          <p>
-            Cuéntame qué necesitas y te digo con honestidad si puedo ayudarte, cuánto demora y
-            cuánto cuesta. Si no soy la persona indicada, también te lo digo.
-          </p>
+        <div class="section-head">
+          <h2>Hablemos</h2>
+          <span class="mono">Disponible para proyectos</span>
+        </div>
 
-          <div class="contact-rows">
-            <a class="contact-row" href={meta.whatsapp} target="_blank" rel="noopener">
-              <span>WhatsApp</span><span>{meta.phoneHuman} ↗</span>
-            </a>
-            <a class="contact-row" href={`mailto:${meta.email}`}>
-              <span>Correo</span><span>{meta.email} ↗</span>
-            </a>
-            <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
-              <span>LinkedIn</span><span>Christian Alcántara ↗</span>
-            </a>
-            <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
-              <span>GitHub</span><span>@chrx3 ↗</span>
-            </a>
-          </div>
+        <div class="contact-rows">
+          <a class="contact-row" href={meta.whatsapp} target="_blank" rel="noopener">
+            <span class="k">WhatsApp</span><span class="v">{meta.phoneHuman} ↗</span>
+          </a>
+          <a class="contact-row" href={`mailto:${meta.email}`}>
+            <span class="k">Correo</span><span class="v">{meta.email} ↗</span>
+          </a>
+          <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
+            <span class="k">LinkedIn</span><span class="v">Christian Alcántara ↗</span>
+          </a>
+          <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
+            <span class="k">GitHub</span><span class="v">@chrx3 ↗</span>
+          </a>
         </div>
       </section>
     </main>
 
     <footer class="shell foot">
       <span>© {year} Christian Alcántara · Santiago de Chile</span>
-      <span>Hecho con Astro · desplegado en servidor propio</span>
+      <span>Astro · servidor propio</span>
     </footer>
   </body>
 </html>
