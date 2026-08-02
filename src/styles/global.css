@@ -173,7 +173,7 @@ p {
 .nav-cta {
   color: var(--ink) !important;
   background: var(--pyrite);
-  padding: 0.42rem 0.85rem;
+  padding: 0.6rem 1rem;
   border-radius: var(--r);
   font-weight: 600;
 }
@@ -483,6 +483,7 @@ p {
 }
 
 .case-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -494,6 +495,13 @@ p {
   border-bottom: 1px solid var(--pyrite-dim);
   padding-bottom: 2px;
   transition: gap 0.16s ease;
+}
+
+/* Amplía el área táctil a ~44px sin mover nada visualmente */
+.case-link::after {
+  content: '';
+  position: absolute;
+  inset: -11px -10px;
 }
 
 .case-link:hover {
