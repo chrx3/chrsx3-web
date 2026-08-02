@@ -48,8 +48,8 @@ export const work = [
     tag: 'App publicada',
     host: 'Google Play',
     url: 'https://play.google.com/store/apps/details?id=com.chrsx3.petfloat',
-    shot: null,
-    line: 'Aplicación Android publicada en Google Play, con panel web para administrar contenido.',
+    shot: '/shots/petfloat.jpg',
+    line: 'Un gato de píxeles que vive flotando sobre la pantalla, encima de cualquier app que estés usando. Hecha con React Native y publicada en Google Play.',
   },
 ]
 
