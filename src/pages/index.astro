@@ -4,6 +4,14 @@ import { meta, work, services, stack } from '../data/site'
 
 const year = 2026
 const petFloat = work.find((w) => w.name === 'Pet Float')
+
+const contactKinds = [
+  'Sitio web',
+  'Sistema interno',
+  'Aplicación móvil',
+  'Mantención o soporte',
+  'Todavía no lo tengo claro',
+]
 ---
 
 <!doctype html>
@@ -53,6 +61,8 @@ const petFloat = work.find((w) => w.name === 'Pet Float')
   </head>
 
   <body>
+    <div class="grid-lines" aria-hidden="true"></div>
+
     <header class="nav">
       <div class="shell nav-in">
         <a class="brand" href="#top"><span class="brand-dot" aria-hidden="true"></span>chrsx3</a>
@@ -69,35 +79,35 @@ const petFloat = work.find((w) => w.name === 'Pet Float')
       <!-- ===== hero ===== -->
       <section class="shell hero">
         <p class="mono rise">{meta.name} — {meta.city}</p>
-        <h1 class="rise" style="animation-delay:.05s">
-          Construyo software para empresas <em>y lo mantengo corriendo<span class="dot">.</span></em>
+        <h1>
+          <span class="w" style="--wd:.05s"><span>Construyo</span></span> <span class="w" style="--wd:.1s"><span>software</span></span> <span class="w" style="--wd:.15s"><span>para</span></span> <span class="w" style="--wd:.2s"><span>empresas</span></span> <em><span class="w" style="--wd:.28s"><span>y</span></span> <span class="w" style="--wd:.33s"><span>lo</span></span> <span class="w" style="--wd:.38s"><span>mantengo</span></span> <span class="w" style="--wd:.43s"><span>corriendo<span class="dot">.</span></span></span></em>
         </h1>
-        <p class="hero-sub rise" style="animation-delay:.1s">
+        <p class="hero-sub rise" style="animation-delay:.5s">
           Sitios, sistemas internos y aplicaciones móviles. Ingeniero informático con formación
           previa en diseño gráfico. Trabajo con clientes en Chile y administro el servidor donde
           vive todo lo que ves acá.
         </p>
-        <div class="hero-actions rise" style="animation-delay:.15s">
+        <div class="hero-actions rise" style="animation-delay:.58s">
           <a class="btn btn-solid" href={meta.whatsapp} target="_blank" rel="noopener">
             Escríbeme por WhatsApp
           </a>
           <a class="btn btn-ghost" href="#trabajo">Ver el trabajo</a>
         </div>
-        <p class="hero-status rise" style="animation-delay:.2s; margin-top: 2.1rem">
+        <p class="hero-status rise" style="animation-delay:.66s; margin-top: 2.1rem">
           <span class="status-dot" aria-hidden="true"></span>
           {work.length} proyectos en producción · Todos los sistemas operacionales
         </p>
 
         <a
           class="hero-cat rise"
-          style="animation-delay:.3s"
+          style="animation-delay:.75s"
           href={petFloat?.url}
           target="_blank"
           rel="noopener"
           aria-label="Pet Float, la app de Christian en Google Play"
         >
           <span class="cat-tag" aria-hidden="true">Pet Float ↗</span>
-          <span class="cat-sprite" role="img" aria-label="Gato de píxeles sentado"></span>
+          <img src="/cat/sit.png" alt="" width="80" height="80" decoding="async" />
         </a>
       </section>
 
@@ -211,19 +221,51 @@ const petFloat = work.find((w) => w.name === 'Pet Float')
           <span class="mono">Disponible para proyectos</span>
         </div>
 
-        <div class="contact-rows" data-reveal>
-          <a class="contact-row" href={meta.whatsapp} target="_blank" rel="noopener">
-            <span class="k">WhatsApp</span><span class="v">{meta.phoneHuman} <span class="arrow" aria-hidden="true">↗</span></span>
-          </a>
-          <a class="contact-row" href={`mailto:${meta.email}`}>
-            <span class="k">Correo</span><span class="v">{meta.email} <span class="arrow" aria-hidden="true">↗</span></span>
-          </a>
-          <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
-            <span class="k">LinkedIn</span><span class="v">Christian Alcántara <span class="arrow" aria-hidden="true">↗</span></span>
-          </a>
-          <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
-            <span class="k">GitHub</span><span class="v">@chrx3 <span class="arrow" aria-hidden="true">↗</span></span>
-          </a>
+        <div class="contact-grid">
+          <form class="contact-form" data-reveal data-wa={`https://wa.me/${meta.phone.replace(/\D/g, '')}`}>
+            <p class="form-lead">
+              Cuéntame en dos líneas qué necesitas. Se abre WhatsApp con el mensaje ya escrito.
+            </p>
+
+            <div class="field">
+              <label class="mono" for="cf-name">Nombre</label>
+              <input id="cf-name" name="name" type="text" required autocomplete="name" placeholder="Cómo te llamas" />
+            </div>
+
+            <div class="field">
+              <label class="mono" for="cf-kind">Qué necesitas</label>
+              <select id="cf-kind" name="kind">
+                {contactKinds.map((kind) => <option value={kind}>{kind}</option>)}
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="mono" for="cf-msg">Mensaje</label>
+              <textarea id="cf-msg" name="message" rows="4" required placeholder="Qué quieres construir, para cuándo y cualquier detalle que ayude."></textarea>
+            </div>
+
+            <button class="form-send" type="submit">
+              Abrir WhatsApp <span class="arrow" aria-hidden="true">↗</span>
+            </button>
+            <p class="form-note mono">
+              No se guarda nada acá: el mensaje viaja directo a tu app de WhatsApp.
+            </p>
+          </form>
+
+          <div class="contact-alt" data-reveal>
+            <p class="alt-title mono">O por otro canal</p>
+            <div class="contact-rows">
+              <a class="contact-row" href={`mailto:${meta.email}?subject=${encodeURIComponent('Proyecto — desde chrsx3.com')}`}>
+                <span class="k">Correo</span><span class="v" aria-hidden="true">↗</span>
+              </a>
+              <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
+                <span class="k">LinkedIn</span><span class="v" aria-hidden="true">↗</span>
+              </a>
+              <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
+                <span class="k">GitHub</span><span class="v" aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -231,7 +273,8 @@ const petFloat = work.find((w) => w.name === 'Pet Float')
     <footer class="shell foot">
       <div class="foot-cat-lane" aria-hidden="true">
         <span class="foot-cat">
-          <img src="/cat/walk.webp" alt="" width="64" height="50" loading="lazy" decoding="async" />
+          <img class="fc-walk" src="/cat/walk.webp" alt="" width="64" height="50" loading="lazy" decoding="async" />
+          <img class="fc-sit" src="/cat/sit.png" alt="" width="64" height="64" loading="lazy" decoding="async" />
         </span>
       </div>
       <div class="foot-in">
@@ -253,6 +296,78 @@ const petFloat = work.find((w) => w.name === 'Pet Float')
         { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
       )
       document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
+
+      const form = document.querySelector('.contact-form')
+      form?.addEventListener('submit', (event) => {
+        event.preventDefault()
+        const data = new FormData(form)
+        const name = String(data.get('name') || '').trim()
+        const kind = String(data.get('kind') || '').trim()
+        const message = String(data.get('message') || '').trim()
+
+        const text = [
+          `Hola Christian, soy ${name}.`,
+          `Necesito: ${kind}.`,
+          '',
+          message,
+          '',
+          '— enviado desde chrsx3.com',
+        ].join('\n')
+
+        window.open(`${form.dataset.wa}?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
+      })
+    </script>
+
+    <script is:inline>
+      const noReduce = matchMedia('(prefers-reduced-motion: no-preference)').matches
+
+      if (noReduce) {
+        /* --- parallax sutil en las capturas --- */
+        const shots = [...document.querySelectorAll('.card-shot img')]
+        let ticking = false
+        const parallax = () => {
+          const vh = innerHeight
+          for (const img of shots) {
+            const r = img.parentElement.getBoundingClientRect()
+            const p = (r.top + r.height / 2 - vh / 2) / (vh / 2)
+            img.style.setProperty('--py', (p * -10).toFixed(1) + 'px')
+          }
+          ticking = false
+        }
+        addEventListener(
+          'scroll',
+          () => {
+            if (!ticking) {
+              requestAnimationFrame(parallax)
+              ticking = true
+            }
+          },
+          { passive: true }
+        )
+        parallax()
+
+        /* --- el gato del footer: dirección + descansos --- */
+        const footCat = document.querySelector('.foot-cat')
+        if (footCat) {
+          let lastX = null
+          const track = () => {
+            const x = footCat.getBoundingClientRect().left
+            if (lastX !== null) {
+              const dx = x - lastX
+              if (dx < -0.5) footCat.classList.add('is-left')
+              else if (dx > 0.5) footCat.classList.remove('is-left')
+            }
+            lastX = x
+            requestAnimationFrame(track)
+          }
+          requestAnimationFrame(track)
+
+          setInterval(() => {
+            footCat.classList.add('is-resting')
+            setTimeout(() => footCat.classList.remove('is-resting'), 4200)
+          }, 14000)
+        }
+      }
     </script>
   </body>
 </html>
