@@ -1,0 +1,256 @@
+---
+import '../styles/global.css'
+import { meta, board, work, services, stack } from '../data/site'
+
+const year = 2026
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Christian Alcántara — Ingeniero de software · Santiago de Chile</title>
+    <meta name="description" content={meta.description} />
+    <link rel="canonical" href="https://chrsx3.com/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#070c1e" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://chrsx3.com/" />
+    <meta property="og:title" content="Christian Alcántara — Ingeniero de software" />
+    <meta property="og:description" content={meta.description} />
+    <meta property="og:locale" content="es_CL" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: meta.name,
+        alternateName: meta.alias,
+        jobTitle: 'Ingeniero de software',
+        email: `mailto:${meta.email}`,
+        telephone: meta.phone,
+        url: 'https://chrsx3.com',
+        address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressCountry: 'CL' },
+        sameAs: [meta.linkedin, meta.github],
+      })}
+    />
+  </head>
+
+  <body>
+    <header class="nav">
+      <div class="shell nav-in">
+        <a class="brand" href="#top">chrsx<span>3</span></a>
+        <nav class="nav-links">
+          <a href="#trabajo">Trabajo</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#sobre-mi">Sobre mí</a>
+          <a class="nav-cta" href={meta.whatsapp} target="_blank" rel="noopener">Hablemos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ===== hero ===== -->
+      <section class="shell hero">
+        <p class="eyebrow rise">{meta.name} · {meta.city}</p>
+        <h1 class="rise" style="animation-delay:.06s">
+          Software que llega a producción <em>y se queda ahí.</em>
+        </h1>
+        <p class="hero-sub rise" style="animation-delay:.12s">
+          Ingeniero informático con formación previa en diseño gráfico. Construyo sitios, sistemas
+          internos y aplicaciones móviles para empresas en Chile, y los mantengo corriendo en
+          <strong>mi propio servidor</strong>.
+        </p>
+        <div class="hero-actions rise" style="animation-delay:.18s">
+          <a class="btn btn-primary" href={meta.whatsapp} target="_blank" rel="noopener">
+            Escríbeme por WhatsApp
+          </a>
+          <a class="btn btn-ghost" href="#trabajo">Ver el trabajo</a>
+        </div>
+      </section>
+
+      <!-- ===== tablero en vivo — elemento firma ===== -->
+      <section class="shell rise" style="animation-delay:.24s" aria-label="Servicios en producción">
+        <div class="board">
+          <div class="board-head">
+            <span class="board-live"><i class="dot" aria-hidden="true"></i> En producción</span>
+            <span>{board.length} servicios públicos</span>
+          </div>
+
+          {
+            board.map((b) => (
+              <a class="board-row" href={b.url} target="_blank" rel="noopener">
+                <i class="dot" aria-hidden="true" />
+                <span class="board-host">{b.host}</span>
+                <span class="board-sector">{b.sector}</span>
+                <span class="board-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            ))
+          }
+
+          <p class="board-foot">
+            Todos los enlaces abren el sitio real, no una captura. Además opero sistemas internos
+            para clientes que no puedo mostrar públicamente.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== trabajo ===== -->
+      <section class="shell section" id="trabajo">
+        <div class="section-head">
+          <h2>Trabajo seleccionado</h2>
+          <p class="section-note">
+            Seis proyectos, del producto propio al encargo corporativo. Cada uno parte del problema
+            del cliente, no de la tecnología.
+          </p>
+        </div>
+
+        {
+          work.map((w) => (
+            <article class="case">
+              <div>
+                <span class="case-kind">{w.kind}</span>
+                <h3 class="case-name">{w.name}</h3>
+                <p class="case-sector">{w.sector}</p>
+              </div>
+
+              <div>
+                <div class="case-block">
+                  <p class="case-label">El problema</p>
+                  <p class="case-text">{w.problem}</p>
+                </div>
+
+                <div class="case-block">
+                  <p class="case-label">Qué construí</p>
+                  <p class="case-text is-solution">{w.built}</p>
+                </div>
+
+                <div class="chips">
+                  {w.stack.map((s) => (
+                    <span class="chip">{s}</span>
+                  ))}
+                </div>
+
+                {w.url ? (
+                  <a class="case-link" href={w.url} target="_blank" rel="noopener">
+                    {w.cta} <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <p class="case-private">Puedo mostrarlo en una llamada, bajo confidencialidad.</p>
+                )}
+              </div>
+            </article>
+          ))
+        }
+      </section>
+
+      <!-- ===== servicios ===== -->
+      <section class="shell section" id="servicios">
+        <div class="section-head">
+          <h2>Qué hago</h2>
+          <p class="section-note">
+            Trabajo solo, así que hablas directo con quien escribe el código. Sin capas de gestión
+            en el medio.
+          </p>
+        </div>
+
+        <div class="grid-services">
+          {
+            services.map((s) => (
+              <div class="service">
+                <h3>{s.title}</h3>
+                <p>{s.body}</p>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ===== sobre mí + stack ===== -->
+      <section class="shell section" id="sobre-mi">
+        <div class="section-head">
+          <h2>Sobre mí</h2>
+        </div>
+
+        <div class="two-col">
+          <div class="about">
+            <p>
+              Me llamo <strong>Christian Alcántara</strong> y vivo en Santiago. Empecé estudiando
+              <strong> diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después me
+              titulé de <strong>Ingeniería Informática en Duoc UC</strong>. Esa combinación explica
+              por qué no te entrego un sistema que funciona pero se ve mal, ni uno bonito que se
+              cae.
+            </p>
+            <p>
+              Desde 2023 trabajo como <strong>desarrollador full-stack en TSG Environmental
+              Chile</strong>, en un equipo de dos personas dentro del área de Innovación y
+              Desarrollo. Ahí me toca revivir sistemas heredados, levantar apps móviles y sostener
+              un volumen alto de proyectos con React, Next.js y Python.
+            </p>
+            <p>
+              En paralelo llevo mis propios proyectos y clientes. Administro el servidor donde vive
+              todo lo de esta página: dominios, certificados, despliegues y monitoreo. Cuando termino
+              un proyecto no lo entrego y desaparezco, queda funcionando y yo sigo respondiendo.
+            </p>
+          </div>
+
+          <dl class="stack-list">
+            {
+              Object.entries(stack).map(([group, items]) => (
+                <div class="stack-group">
+                  <dt>{group}</dt>
+                  <dd>{items.join(' · ')}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </section>
+
+      <!-- ===== contacto ===== -->
+      <section class="shell section" id="contacto">
+        <div class="contact">
+          <p class="eyebrow">Disponible para proyectos</p>
+          <h2>¿Tienes algo que construir?</h2>
+          <p>
+            Cuéntame qué necesitas y te digo con honestidad si puedo ayudarte, cuánto demora y
+            cuánto cuesta. Si no soy la persona indicada, también te lo digo.
+          </p>
+
+          <div class="contact-rows">
+            <a class="contact-row" href={meta.whatsapp} target="_blank" rel="noopener">
+              <span>WhatsApp</span><span>{meta.phoneHuman} ↗</span>
+            </a>
+            <a class="contact-row" href={`mailto:${meta.email}`}>
+              <span>Correo</span><span>{meta.email} ↗</span>
+            </a>
+            <a class="contact-row" href={meta.linkedin} target="_blank" rel="noopener">
+              <span>LinkedIn</span><span>Christian Alcántara ↗</span>
+            </a>
+            <a class="contact-row" href={meta.github} target="_blank" rel="noopener">
+              <span>GitHub</span><span>@chrx3 ↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell foot">
+      <span>© {year} Christian Alcántara · Santiago de Chile</span>
+      <span>Hecho con Astro · desplegado en servidor propio</span>
+    </footer>
+  </body>
+</html>
