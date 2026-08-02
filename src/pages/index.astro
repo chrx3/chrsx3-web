@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css'
-import { meta, board, work, services, stack } from '../data/site'
+import { meta, board, services, stack } from '../data/site'
 
 const year = 2026
 ---
@@ -76,12 +76,17 @@ const year = 2026
           <a class="btn btn-primary" href={meta.whatsapp} target="_blank" rel="noopener">
             Escríbeme por WhatsApp
           </a>
-          <a class="btn btn-ghost" href="#trabajo">Ver el trabajo</a>
+          <a class="btn btn-ghost" href="#contacto">Ver contacto</a>
         </div>
       </section>
 
       <!-- ===== tablero en vivo — elemento firma ===== -->
-      <section class="shell rise" style="animation-delay:.24s" aria-label="Servicios en producción">
+      <section
+        class="shell rise"
+        id="trabajo"
+        style="animation-delay:.24s"
+        aria-label="Servicios en producción"
+      >
         <div class="board">
           <div class="board-head">
             <span class="board-live"><i class="dot" aria-hidden="true"></i> En producción</span>
@@ -103,58 +108,10 @@ const year = 2026
 
           <p class="board-foot">
             Todos los enlaces abren el sitio real, no una captura. Además opero sistemas internos
-            para clientes que no puedo mostrar públicamente.
+            para clientes que no puedo mostrar públicamente. Estoy sumando el resto de los
+            proyectos a esta lista.
           </p>
         </div>
-      </section>
-
-      <!-- ===== trabajo ===== -->
-      <section class="shell section" id="trabajo">
-        <div class="section-head">
-          <h2>Trabajo seleccionado</h2>
-          <p class="section-note">
-            Seis proyectos, del producto propio al encargo corporativo. Cada uno parte del problema
-            del cliente, no de la tecnología.
-          </p>
-        </div>
-
-        {
-          work.map((w) => (
-            <article class="case">
-              <div>
-                <span class="case-kind">{w.kind}</span>
-                <h3 class="case-name">{w.name}</h3>
-                <p class="case-sector">{w.sector}</p>
-              </div>
-
-              <div>
-                <div class="case-block">
-                  <p class="case-label">El problema</p>
-                  <p class="case-text">{w.problem}</p>
-                </div>
-
-                <div class="case-block">
-                  <p class="case-label">Qué construí</p>
-                  <p class="case-text is-solution">{w.built}</p>
-                </div>
-
-                <div class="chips">
-                  {w.stack.map((s) => (
-                    <span class="chip">{s}</span>
-                  ))}
-                </div>
-
-                {w.url ? (
-                  <a class="case-link" href={w.url} target="_blank" rel="noopener">
-                    {w.cta} <span aria-hidden="true">→</span>
-                  </a>
-                ) : (
-                  <p class="case-private">Puedo mostrarlo en una llamada, bajo confidencialidad.</p>
-                )}
-              </div>
-            </article>
-          ))
-        }
       </section>
 
       <!-- ===== servicios ===== -->
