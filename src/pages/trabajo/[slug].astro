@@ -1,0 +1,180 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import { Font, Picture } from 'astro:assets'
+import '../../styles/global.css'
+import { meta, work } from '../../data/site'
+
+export function getStaticPaths() {
+  return work.map((project, i) => ({
+    params: { slug: project.slug },
+    /* El siguiente da la vuelta al final: la ficha nunca queda sin salida */
+    props: { project, next: work[(i + 1) % work.length] },
+  }))
+}
+
+const { project, next } = Astro.props
+const year = new Date().getFullYear()
+
+/* Solo se listan los datos que estén escritos en site.ts. Sin relleno. */
+const facts = [
+  { k: project.hostLabel ?? 'Sitio', v: project.host },
+  project.year && { k: 'Año', v: project.year },
+  project.role && { k: 'Rol', v: project.role },
+  project.stack?.length && { k: 'Stack', v: project.stack.join(' · ') },
+].filter(Boolean) as { k: string; v: string }[]
+
+const title = `${project.name} — ${project.tag} · Christian Alcántara`
+const cta = project.cta ?? `Abrir ${project.host}`
+const shotNote = project.shotNote ?? 'Captura completa del sitio en producción'
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={project.line} />
+    <link rel="canonical" href={`https://chrsx3.com/trabajo/${project.slug}/`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#121212" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={`https://chrsx3.com/trabajo/${project.slug}/`} />
+    <meta property="og:title" content={`${project.name} — ${project.tag}`} />
+    <meta property="og:description" content={project.line} />
+    <meta property="og:locale" content="es_CL" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>
+      document.documentElement.classList.add('js-reveal')
+    </script>
+
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-body" preload />
+    <Font cssVariable="--font-mono" />
+
+    <ClientRouter />
+  </head>
+
+  <body>
+    <div class="grid-lines" aria-hidden="true"></div>
+
+    <header class="nav">
+      <div class="shell nav-in">
+        <a class="brand" href="/"><span class="brand-dot" aria-hidden="true"></span>chrsx3</a>
+        <nav class="nav-links">
+          <a href="/#trabajo">← Todo el trabajo</a>
+          <a class="nav-cta" href={meta.whatsapp} target="_blank" rel="noopener">Hablemos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="shell case-head">
+        <p class="mono">{project.tag}</p>
+        <h1 transition:name={`name-${project.slug}`}>{project.name}</h1>
+        <p class="case-line">{project.line}</p>
+        {project.detail && <p class="case-detail">{project.detail}</p>}
+
+        <dl class="case-facts">
+          {
+            facts.map((f) => (
+              <div class="fact">
+                <dt class="mono">{f.k}</dt>
+                <dd>{f.v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div class="case-actions">
+          <a class="btn btn-solid" href={project.url} target="_blank" rel="noopener">
+            {cta} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          {
+            project.download && (
+              <a class="btn btn-ghost" href={project.download.url} target="_blank" rel="noopener">
+                {project.download.label} <span class="arrow" aria-hidden="true">↗</span>
+              </a>
+            )
+          }
+        </div>
+      </section>
+
+      {
+        project.features?.length && (
+          <section class="shell case-features">
+            <h2 class="mono">Qué hace</h2>
+            <div class="case-tools">
+              {project.features.map((f, i) => (
+                <article class="case-tool">
+                  <span class="idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  <h3>{f.title}</h3>
+                  <p>{f.body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <!-- La captura completa: el recorrido que en la portada se insinúa, acá entero -->
+      <section class="shell case-shot-wrap">
+        <figure class="case-shot" transition:name={`shot-${project.slug}`}>
+          <span class="reel-chrome">
+            <span class="reel-dots" aria-hidden="true"></span>
+            <span class="reel-host">{project.host}</span>
+          </span>
+          <Picture
+            src={project.shot}
+            formats={['avif', 'webp']}
+            widths={[720, 1080, 1440]}
+            sizes="(max-width: 1120px) 100vw, 1040px"
+            alt={`Captura de ${project.name}`}
+            loading="eager"
+            decoding="async"
+          />
+        </figure>
+        <p class="case-note mono">{shotNote}</p>
+      </section>
+
+      {
+        project.gallery?.length && (
+          <section class="shell case-gallery">
+            {project.gallery.map((item) => (
+              <div>
+                <figure class="case-shot">
+                  <Picture
+                    src={item.src}
+                    formats={['avif', 'webp']}
+                    widths={[720, 1080]}
+                    sizes="(max-width: 1120px) 100vw, 1040px"
+                    alt={item.caption}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </figure>
+                <p class="case-note mono">{item.caption}</p>
+              </div>
+            ))}
+          </section>
+        )
+      }
+
+      <section class="shell case-next">
+        <a class="next-card" href={`/trabajo/${next.slug}`}>
+          <span class="mono">Siguiente proyecto</span>
+          <span class="next-name">{next.name} <span class="arrow" aria-hidden="true">→</span></span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="shell foot">
+      <div class="foot-in">
+        <span>© {year} Christian Alcántara · Santiago de Chile</span>
+        <a href="/#contacto">Hablemos →</a>
+      </div>
+    </footer>
+  </body>
+</html>

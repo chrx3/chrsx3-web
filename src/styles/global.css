@@ -19,9 +19,11 @@
   --accent-ink: #0b120d;
   --accent-soft: rgba(63, 219, 126, 0.14);
 
-  --ff: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --ff-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
-  --ff-mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+  /* Las --font-* las define Astro con las fuentes ya auto-hospedadas
+     (ver `experimental.fonts` en astro.config.mjs) */
+  --ff: var(--font-body), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --ff-display: var(--font-display), 'Iowan Old Style', Georgia, serif;
+  --ff-mono: var(--font-mono), ui-monospace, 'SF Mono', monospace;
 
   --shell: min(1080px, 100% - 2.5rem);
   --r: 10px;
@@ -35,6 +37,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* El nav es sticky: sin esto los títulos aterrizan debajo de la barra */
+  scroll-padding-top: 5.5rem;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -151,6 +155,18 @@ p {
   background: rgba(18, 18, 18, 0.78);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line-soft);
+}
+
+/* Avance de lectura. Sin scroll-driven animations no se dibuja nada. */
+.nav-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
 }
 
 .nav-in {
@@ -408,6 +424,111 @@ p {
   }
 }
 
+/* ---------- reel: el trabajo a ancho completo, rompiendo el shell ---------- */
+
+.reel {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid var(--line-soft);
+  /* Los extremos se desvanecen para que entre y salga sin cortar en seco */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7rem,
+    #000 calc(100% - 7rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7rem,
+    #000 calc(100% - 7rem),
+    transparent
+  );
+}
+
+.reel-track {
+  display: flex;
+  width: max-content;
+  padding-block: 1.15rem;
+  animation: reel 60s linear infinite;
+}
+
+/* El margen va en el item, no como gap: así el 50% del bucle cae exacto */
+.reel-item {
+  flex: none;
+  width: 340px;
+  margin: 0 1rem 0 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.reel:hover .reel-track,
+.reel:focus-within .reel-track {
+  animation-play-state: paused;
+}
+
+@keyframes reel {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.reel-chrome {
+  display: flex;
+  align-items: center;
+  padding: 0.45rem 0.65rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.reel-dots {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-right: 1.35rem;
+  border-radius: 50%;
+  background: #2f2f2f;
+  box-shadow: 8px 0 0 #2f2f2f, 16px 0 0 #2f2f2f;
+}
+
+.reel-host {
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.reel-item picture {
+  display: contents;
+}
+
+/* `height: auto` no sobra: los atributos width/height que emite <Picture> son
+   presentational hints y, sin esto, el alto de la captura completa gana y deja
+   sin efecto al aspect-ratio. */
+.reel-item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top center;
+}
+
+@media (max-width: 720px) {
+  .reel-item {
+    width: 260px;
+  }
+  .reel-track {
+    animation-duration: 42s;
+  }
+}
+
 /* ---------- secciones ---------- */
 
 .section {
@@ -440,11 +561,18 @@ p {
 
 .work {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.15rem;
+  margin-top: 1.15rem;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 940px) {
+  .work {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
   .work {
     grid-template-columns: 1fr;
   }
@@ -474,17 +602,37 @@ p {
   background: var(--bg);
 }
 
+.card-shot picture {
+  display: contents;
+}
+
+/* Tres movimientos conviven sobre la misma imagen sin pisarse, cada uno en su
+   propiedad: `scale` tapa los bordes que descubre el drift, `translate` lo
+   mueve el scroll (shot-drift) y `object-position` recorre la captura. */
 .card-shot img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  transform: translateY(var(--py, 0px)) scale(1.07);
-  transition: transform 0.3s ease-out;
+  scale: 1.06;
+  transition: object-position var(--travel, 2.4s) cubic-bezier(0.33, 0, 0.15, 1);
 }
 
-.card:hover .card-shot img {
-  transform: translateY(var(--py, 0px)) scale(1.11);
+/* Las capturas son de página completa: al pasar el mouse el marco baja por el
+   sitio entero en vez de quedarse en el encabezado. */
+@media (hover: hover) {
+  .card:hover .card-shot img {
+    object-position: bottom center;
+  }
+}
+
+.card:focus-visible .card-shot img {
+  object-position: bottom center;
+}
+
+/* La destacada es más alta y muestra más de una vez: le toca más recorrido */
+.card-feat .card-shot img {
+  --travel: 3.4s;
 }
 
 /* Marcador para proyectos sin captura, en vez de un hueco vacío */
@@ -575,6 +723,77 @@ p {
 .card:hover .card-host .arrow {
   transform: translate(2px, -2px);
   color: var(--accent);
+}
+
+/* ---------- la destacada: rompe la fila y ocupa el shell entero ----------
+   Va después de `.card` a propósito: comparten especificidad y necesita
+   ganarle el `display: flex`. */
+
+.card-feat {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+/* La altura la manda la columna de texto; la captura se estira y recorta.
+   Absoluta para que la imagen no participe del cálculo de la fila. */
+.card-feat .card-shot {
+  position: relative;
+  aspect-ratio: auto;
+  min-height: 22rem;
+  border-bottom: 0;
+  border-right: 1px solid var(--line);
+}
+
+.card-feat .card-shot img {
+  position: absolute;
+  inset: 0;
+}
+
+.card-feat .card-body {
+  padding: 1.85rem 1.95rem;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.card-feat .card-name {
+  font-family: var(--ff-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.card-feat .card-line {
+  font-size: 0.95rem;
+  flex: none;
+}
+
+.card-feat .card-detail {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-3);
+}
+
+.feat-flag {
+  color: var(--accent);
+  font-size: 0.62rem;
+}
+
+@media (max-width: 820px) {
+  .card-feat {
+    grid-template-columns: 1fr;
+  }
+  .card-feat .card-shot {
+    aspect-ratio: 16 / 10;
+    /* Sin esto el min-height manda sobre el ratio y ensancha la caja */
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .card-feat .card-body {
+    padding: 1.35rem 1.35rem 1.5rem;
+  }
 }
 
 /* ---------- servicios ---------- */
@@ -863,6 +1082,177 @@ p {
   }
 }
 
+/* ---------- ficha de proyecto: /trabajo/<slug> ---------- */
+
+.case-head {
+  padding-block: clamp(3.5rem, 8vw, 5.5rem) clamp(2rem, 4vw, 3rem);
+}
+
+.case-head h1 {
+  font-family: var(--ff-display);
+  font-optical-sizing: auto;
+  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-block: 0.7rem 1rem;
+}
+
+.case-line {
+  color: var(--text-2);
+  font-size: 1.02rem;
+  max-width: 46ch;
+}
+
+.case-detail {
+  color: var(--text-3);
+  font-size: 0.92rem;
+  max-width: 46ch;
+  margin-top: 0.8rem;
+}
+
+.case-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2.5rem;
+  margin: 2rem 0;
+}
+
+.case-facts .fact {
+  padding-block: 0.7rem;
+}
+
+.case-facts dd {
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.case-features {
+  padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.case-features h2 {
+  margin: 0 0 1.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.case-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.case-tool {
+  background: var(--bg);
+  padding: 1.2rem 1.15rem;
+}
+
+.case-tool .idx {
+  font-family: var(--ff-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  color: var(--text-3);
+  display: block;
+  margin-bottom: 0.55rem;
+}
+
+.case-tool h3 {
+  font-size: 0.94rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.case-tool p {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.case-shot-wrap {
+  padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.case-gallery {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+/* La captura va entera y sin recortar: acá el visitante sí puede leerla */
+.case-shot {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.case-shot picture {
+  display: contents;
+}
+
+.case-shot img {
+  width: 100%;
+  height: auto;
+}
+
+.case-note {
+  margin: 0.85rem 0 0;
+  text-align: right;
+}
+
+.case-next {
+  padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.next-card {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  text-decoration: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.next-card:hover {
+  border-color: #3a3a3a;
+  background: var(--surface-2);
+}
+
+.next-name {
+  font-family: var(--ff-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.next-card .arrow {
+  display: inline-block;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.next-card:hover .arrow {
+  transform: translateX(3px);
+  color: var(--accent);
+}
+
 /* ---------- pie ---------- */
 
 .foot {
@@ -876,58 +1266,106 @@ p {
   overflow: hidden;
 }
 
+/* El gato es CSS puro: el viaje, el giro y las pausas sentado viven en los
+   keyframes. Los tres animaciones comparten duración, así que van en fase. */
 .foot-cat {
+  --lane: calc(min(1080px, 100vw - 2.5rem) - 64px);
+  --cat-loop: 26s;
   position: absolute;
   left: 0;
   bottom: 0;
   width: 64px;
-  animation: cat-lane 18s linear infinite alternate;
+  height: 64px;
+  animation: cat-lane var(--cat-loop) linear infinite;
+}
+
+.foot-cat img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  image-rendering: pixelated;
 }
 
 .foot-cat .fc-walk {
-  width: 64px;
-  height: auto;
-  image-rendering: pixelated;
-  display: block;
-}
-
-.foot-cat.is-left .fc-walk {
-  transform: scaleX(-1);
+  height: 50px;
+  animation: cat-walk-vis var(--cat-loop) linear infinite;
 }
 
 .foot-cat .fc-sit {
-  display: none;
-  width: 64px;
   height: 64px;
-  image-rendering: pixelated;
+  animation: cat-sit-vis var(--cat-loop) linear infinite;
 }
 
-.foot-cat.is-left .fc-sit {
-  transform: scaleX(-1);
-}
-
-.foot-cat.is-resting {
-  animation-play-state: paused;
-}
-
-.foot-cat.is-resting .fc-walk {
-  display: none;
-}
-
-.foot-cat.is-resting .fc-sit {
-  display: block;
-}
-
+/* Sentado 0–6% · camina → 6–46% · sentado y gira 46–54% ·
+   camina ← 54–94% · sentado 94–100% y gira para reiniciar sin salto */
 @keyframes cat-lane {
-  from {
-    transform: translateX(0);
+  0%,
+  6% {
+    transform: translateX(0) scaleX(1);
   }
-  to {
-    transform: translateX(calc(min(1080px, 100vw - 2.5rem) - 64px));
+  46%,
+  50% {
+    transform: translateX(var(--lane)) scaleX(1);
+  }
+  51%,
+  54% {
+    transform: translateX(var(--lane)) scaleX(-1);
+  }
+  94%,
+  99% {
+    transform: translateX(0) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
   }
 }
 
-/* El flip lo controla el JS con la dirección del viaje */
+@keyframes cat-walk-vis {
+  0%,
+  5.99% {
+    opacity: 0;
+  }
+  6%,
+  45.99% {
+    opacity: 1;
+  }
+  46%,
+  53.99% {
+    opacity: 0;
+  }
+  54%,
+  93.99% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cat-sit-vis {
+  0%,
+  5.99% {
+    opacity: 1;
+  }
+  6%,
+  45.99% {
+    opacity: 0;
+  }
+  46%,
+  53.99% {
+    opacity: 1;
+  }
+  54%,
+  93.99% {
+    opacity: 0;
+  }
+  94%,
+  100% {
+    opacity: 1;
+  }
+}
 
 .foot-in {
   display: flex;
@@ -974,6 +1412,43 @@ p {
   }
 }
 
+/* ---------- animación por scroll: CSS nativo, sin listeners ----------
+   Tras @supports para que Firefox y compañía se queden con la versión
+   estática en vez de con una rota. */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .nav-progress {
+      animation: nav-progress linear;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes nav-progress {
+      to {
+        transform: scaleX(1);
+      }
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .card-shot img {
+      animation: shot-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+
+    /* Anima `translate`, no `transform`: el hover se queda con `scale` */
+    @keyframes shot-drift {
+      from {
+        translate: 0 -2.5%;
+      }
+      to {
+        translate: 0 2.5%;
+      }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -1005,8 +1480,14 @@ p {
     transition: none;
   }
   .card-shot img,
-  .card:hover .card-shot img {
-    transform: none;
+  .card:hover .card-shot img,
+  .card:focus-visible .card-shot img {
+    scale: 1;
+    translate: none;
+    object-position: top center;
+  }
+  .reel-track {
+    animation: none;
   }
   .status-dot {
     animation: none;

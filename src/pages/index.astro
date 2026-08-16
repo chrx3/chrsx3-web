@@ -1,9 +1,17 @@
 ---
+import { ClientRouter } from 'astro:transitions'
+import { Font, Picture } from 'astro:assets'
 import '../styles/global.css'
 import { meta, work, services, stack } from '../data/site'
 
-const year = 2026
+const year = new Date().getFullYear()
 const petFloat = work.find((w) => w.name === 'Pet Float')
+
+const featured = work.find((w) => w.featured) ?? work[0]
+const rest = work.filter((w) => w !== featured)
+
+/* El reel se duplica para que el bucle no tenga costura */
+const reel = [...work, ...work]
 
 const contactKinds = [
   'Sitio web',
@@ -36,12 +44,11 @@ const contactKinds = [
       document.documentElement.classList.add('js-reveal')
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340..640;1,9..144,340..640&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-body" preload />
+    <Font cssVariable="--font-mono" />
+
+    <ClientRouter />
 
     <script
       type="application/ld+json"
@@ -73,6 +80,7 @@ const contactKinds = [
           <a class="nav-cta" href={meta.whatsapp} target="_blank" rel="noopener">Hablemos</a>
         </nav>
       </div>
+      <span class="nav-progress" aria-hidden="true"></span>
     </header>
 
     <main id="top">
@@ -111,6 +119,31 @@ const contactKinds = [
         </a>
       </section>
 
+      <!-- ===== reel: el trabajo, a ancho completo, antes de la sección ===== -->
+      <div class="reel rise" style="animation-delay:.85s" aria-hidden="true">
+        <div class="reel-track">
+          {
+            reel.map((w, i) => (
+              <figure class="reel-item">
+                <span class="reel-chrome">
+                  <span class="reel-dots" />
+                  <span class="reel-host">{w.host}</span>
+                </span>
+                <Picture
+                  src={w.shotTop}
+                  formats={['avif', 'webp']}
+                  widths={[360, 720]}
+                  sizes="340px"
+                  alt=""
+                  loading={i < 4 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+
       <!-- ===== trabajo ===== -->
       <section class="shell section" id="trabajo">
         <div class="section-head" data-reveal>
@@ -118,35 +151,57 @@ const contactKinds = [
           <span class="mono">En producción · {work.length} proyectos</span>
         </div>
 
+        <a class="card card-feat" href={`/trabajo/${featured.slug}`} data-reveal>
+          <div class="card-shot" transition:name={`shot-${featured.slug}`}>
+            <Picture
+              src={featured.shot}
+              formats={['avif', 'webp']}
+              widths={[640, 1240]}
+              sizes="(max-width: 820px) 100vw, 620px"
+              alt={`Captura de ${featured.name}`}
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+
+          <div class="card-body">
+            <span class="feat-flag mono">Destacado</span>
+            <div class="card-top">
+              <span class="card-name" transition:name={`name-${featured.slug}`}>{featured.name}</span>
+              <span class="pill">{featured.tag}</span>
+            </div>
+            <p class="card-line">{featured.line}</p>
+            {featured.detail && <p class="card-detail">{featured.detail}</p>}
+            <span class="card-host">
+              Ver el proyecto <span class="arrow" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
         <div class="work">
           {
-            work.map((w, i) => (
-              <a class="card" href={w.url} target="_blank" rel="noopener" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-                {w.shot ? (
-                  <div class="card-shot">
-                    <img
-                      src={w.shot}
-                      alt={`Captura del sitio ${w.name}`}
-                      width="1920"
-                      height="1200"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                ) : (
-                  <div class="card-shot is-empty">
-                    <span>{w.name}</span>
-                  </div>
-                )}
+            rest.map((w, i) => (
+              <a class="card" href={`/trabajo/${w.slug}`} data-reveal style={`--reveal-delay:${i * 70}ms`}>
+                <div class="card-shot" transition:name={`shot-${w.slug}`}>
+                  <Picture
+                    src={w.shot}
+                    formats={['avif', 'webp']}
+                    widths={[380, 760]}
+                    sizes="(max-width: 720px) 100vw, 340px"
+                    alt={`Captura de ${w.name}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
 
                 <div class="card-body">
                   <div class="card-top">
-                    <span class="card-name">{w.name}</span>
+                    <span class="card-name" transition:name={`name-${w.slug}`}>{w.name}</span>
                     <span class="pill">{w.tag}</span>
                   </div>
                   <p class="card-line">{w.line}</p>
                   <span class="card-host">
-                    {w.host} <span class="arrow" aria-hidden="true">↗</span>
+                    Ver el proyecto <span class="arrow" aria-hidden="true">→</span>
                   </span>
                 </div>
               </a>
@@ -284,90 +339,45 @@ const contactKinds = [
     </footer>
 
     <script is:inline>
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-in')
-              io.unobserve(entry.target)
-            }
-          }
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
-      )
-      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
+      /* `astro:page-load` corre en la carga inicial y después de cada
+         transición de vista. Sin esto, al volver desde una ficha los
+         [data-reveal] se quedan en opacity 0 y el formulario sin handler. */
+      document.addEventListener('astro:page-load', () => {
+        document.documentElement.classList.add('js-reveal')
 
-      const form = document.querySelector('.contact-form')
-      form?.addEventListener('submit', (event) => {
-        event.preventDefault()
-        const data = new FormData(form)
-        const name = String(data.get('name') || '').trim()
-        const kind = String(data.get('kind') || '').trim()
-        const message = String(data.get('message') || '').trim()
-
-        const text = [
-          `Hola Christian, soy ${name}.`,
-          `Necesito: ${kind}.`,
-          '',
-          message,
-          '',
-          '— enviado desde chrsx3.com',
-        ].join('\n')
-
-        window.open(`${form.dataset.wa}?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
-      })
-    </script>
-
-    <script is:inline>
-      const noReduce = matchMedia('(prefers-reduced-motion: no-preference)').matches
-
-      if (noReduce) {
-        /* --- parallax sutil en las capturas --- */
-        const shots = [...document.querySelectorAll('.card-shot img')]
-        let ticking = false
-        const parallax = () => {
-          const vh = innerHeight
-          for (const img of shots) {
-            const r = img.parentElement.getBoundingClientRect()
-            const p = (r.top + r.height / 2 - vh / 2) / (vh / 2)
-            img.style.setProperty('--py', (p * -10).toFixed(1) + 'px')
-          }
-          ticking = false
-        }
-        addEventListener(
-          'scroll',
-          () => {
-            if (!ticking) {
-              requestAnimationFrame(parallax)
-              ticking = true
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in')
+                io.unobserve(entry.target)
+              }
             }
           },
-          { passive: true }
+          { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
         )
-        parallax()
+        document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
 
-        /* --- el gato del footer: dirección + descansos --- */
-        const footCat = document.querySelector('.foot-cat')
-        if (footCat) {
-          let lastX = null
-          const track = () => {
-            const x = footCat.getBoundingClientRect().left
-            if (lastX !== null) {
-              const dx = x - lastX
-              if (dx < -0.5) footCat.classList.add('is-left')
-              else if (dx > 0.5) footCat.classList.remove('is-left')
-            }
-            lastX = x
-            requestAnimationFrame(track)
-          }
-          requestAnimationFrame(track)
+        const form = document.querySelector('.contact-form')
+        form?.addEventListener('submit', (event) => {
+          event.preventDefault()
+          const data = new FormData(form)
+          const name = String(data.get('name') || '').trim()
+          const kind = String(data.get('kind') || '').trim()
+          const message = String(data.get('message') || '').trim()
 
-          setInterval(() => {
-            footCat.classList.add('is-resting')
-            setTimeout(() => footCat.classList.remove('is-resting'), 4200)
-          }, 14000)
-        }
-      }
+          const text = [
+            `Hola Christian, soy ${name}.`,
+            `Necesito: ${kind}.`,
+            '',
+            message,
+            '',
+            '— enviado desde chrsx3.com',
+          ].join('\n')
+
+          window.open(`${form.dataset.wa}?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
+        })
+      })
     </script>
   </body>
 </html>
