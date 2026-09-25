@@ -2,12 +2,14 @@
    por la tarjeta. `shotTop` es solo el encabezado en 16:10, para el reel, que
    nunca muestra más que eso y carga sobre el pliegue. */
 import atic from '../assets/shots/atic.jpg'
+import halftone from '../assets/shots/halftone.jpg'
 import hminova from '../assets/shots/hminova.jpg'
 import katemi from '../assets/shots/katemi.jpg'
 import pedi from '../assets/shots/pedi.jpg'
 import petfloat from '../assets/shots/petfloat.jpg'
 
 import aticTop from '../assets/shots/reel/atic.jpg'
+import halftoneTop from '../assets/shots/reel/halftone.jpg'
 import hminovaTop from '../assets/shots/reel/hminova.jpg'
 import katemiTop from '../assets/shots/reel/katemi.jpg'
 import pediTop from '../assets/shots/reel/pedi.jpg'
@@ -89,6 +91,48 @@ export const work = [
       {
         title: 'Apps',
         body: 'Launcher tipo Spotlight (mismo atajo que Ctrl+Space).',
+      },
+    ],
+  },
+  {
+    slug: 'halftone-studio',
+    name: 'Halftone Studio',
+    tag: 'Herramienta propia',
+    host: 'halftone.chrsx3.com',
+    hostLabel: 'App',
+    url: 'https://halftone.chrsx3.com',
+    shot: halftone,
+    shotTop: halftoneTop,
+    line: 'Convierte imágenes, texto y formas en tramas halftone y dither, con vista previa en vivo y exportación PNG. Todo se procesa en el navegador.',
+    year: '2026',
+    role: 'Autor',
+    stack: ['Svelte', 'TypeScript', 'Canvas', 'Web Workers'],
+    cta: 'Abrir Halftone Studio',
+    shotNote: 'En producción · sin cuenta y sin servidor de procesamiento',
+    features: [
+      {
+        title: 'Recetas de tinta',
+        body: 'Seis puntos de partida, de una tinta a cuatro tintas visuales, que después se ajustan a mano.',
+      },
+      {
+        title: 'Puntos o dither',
+        body: 'Trama clásica que escala cada punto, o dither por difusión de error con puntos círculo o cuadrado.',
+      },
+      {
+        title: 'Antes / después',
+        body: 'Divisor que se arrastra con mouse, dedo o teclado para comparar la fuente con el resultado.',
+      },
+      {
+        title: 'Imagen, texto y forma',
+        body: 'Sube una foto o escribe una frase; las formas y el texto usan degradados para aprovechar la trama.',
+      },
+      {
+        title: 'Local',
+        body: 'El render corre en un Web Worker con OffscreenCanvas. La imagen nunca sale del dispositivo.',
+      },
+      {
+        title: 'Exportación',
+        body: 'PNG de hasta 2800 px por lado, generado fuera del hilo principal.',
       },
     ],
   },
