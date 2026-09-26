@@ -1,6 +1,6 @@
-/* `shot` es la captura de página completa: se recorre entera al pasar el mouse
-   por la tarjeta. `shotTop` es solo el encabezado en 16:10, para el reel, que
-   nunca muestra más que eso y carga sobre el pliegue. */
+/* `shot` es la captura completa: el visor de la portada la recorre entera y la
+   ficha la muestra sin recortar. `shotTop` es solo el encabezado en 16:10, para
+   la tira sobre el pliegue y las miniaturas del índice en móvil. */
 import atic from '../assets/shots/atic.jpg'
 import halftone from '../assets/shots/halftone.jpg'
 import hminova from '../assets/shots/hminova.jpg'
@@ -17,16 +17,45 @@ import petfloatTop from '../assets/shots/reel/petfloat.jpg'
 
 import aticMarca from '../assets/shots/atic/marca.jpg'
 
+/* Atic se publica en GitHub Releases, así que la ficha no escribe la versión ni
+   los enlaces a mano: los resuelve del último release en cada build. Si la API
+   no responde, cae a estos valores de respaldo, que conviene refrescar de vez
+   en cuando. */
+const aticFallback = {
+  tag: 'v0.4.41',
+  windows: 'https://github.com/chrx3/atic/releases/latest',
+  mac: 'https://github.com/chrx3/atic/releases/latest',
+}
+
+async function aticRelease() {
+  try {
+    const res = await fetch('https://api.github.com/repos/chrx3/atic/releases/latest', {
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'chrsx3-web' },
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return aticFallback
+    const rel = (await res.json()) as {
+      tag_name?: string
+      assets?: { name: string; browser_download_url: string }[]
+    }
+    const asset = (re: RegExp) => rel.assets?.find((a) => re.test(a.name))?.browser_download_url
+    return {
+      tag: rel.tag_name ?? aticFallback.tag,
+      windows: asset(/x64-setup\.exe$/i) ?? aticFallback.windows,
+      mac: asset(/universal\.dmg$/i) ?? asset(/\.dmg$/i) ?? aticFallback.mac,
+    }
+  } catch {
+    return aticFallback
+  }
+}
+
+const latestAtic = await aticRelease()
+
 export const meta = {
   name: 'Christian Alcántara',
   alias: 'Chrsx3',
   city: 'Santiago de Chile',
   email: 'chris.alc.13@gmail.com',
-  phone: '+56984706809',
-  phoneHuman: '+56 9 8470 6809',
-  whatsapp:
-    'https://wa.me/56984706809?text=' +
-    encodeURIComponent('Hola Christian, vi tu sitio y quiero conversar un proyecto.'),
   linkedin: 'https://www.linkedin.com/in/christian-alcántara-234888213/',
   github: 'https://github.com/chrx3',
   description:
@@ -37,9 +66,10 @@ export const meta = {
  * Solo proyectos autorizados o propios.
  * Los textos salen de la propia copia de cada sitio, no de inferencias.
  *
- * `featured: true` sube el proyecto a la tarjeta grande de la sección Trabajo.
- * Marca solo uno; si no hay ninguno, se destaca el primero de la lista.
- * `detail` es opcional y solo se muestra en esa tarjeta grande.
+ * El orden de la lista es la numeración del índice (01, 02…).
+ * `featured: true` lo marca como destacado en la ficha de la portada. Marca solo
+ * uno; si no hay ninguno, se destaca el primero de la lista.
+ * Los proyectos con `features` se abren en un bloque extendido bajo su fila.
  */
 export const work = [
   {
@@ -59,11 +89,11 @@ export const work = [
     role: 'Autor',
     stack: ['Tauri', 'Svelte', 'Rust', 'Whisper'],
     cta: 'Ver en GitHub',
-    download: {
-      label: 'Descargar para Windows',
-      url: 'https://github.com/chrx3/atic/releases/latest',
-    },
-    shotNote: 'Repositorio público · v0.4.0 · MIT',
+    downloads: [
+      { label: 'Descargar para Windows', url: latestAtic.windows },
+      { label: 'Descargar para macOS', url: latestAtic.mac },
+    ],
+    shotNote: `Repositorio público · ${latestAtic.tag} · MIT`,
     gallery: [
       { src: aticMarca, caption: 'Marca del proyecto' },
     ],
@@ -202,7 +232,8 @@ export type Project = {
   stack?: string[]
   /** Texto del botón principal. Si no está, se usa «Abrir {host}». */
   cta?: string
-  download?: { label: string; url: string }
+  /** Botones de descarga (bloque extendido y ficha). Atic los arma desde su último release. */
+  downloads?: { label: string; url: string }[]
   /** Pie de la captura principal. Si no está, se asume un sitio en producción. */
   shotNote?: string
   gallery?: { src: ImageMetadata; caption: string }[]

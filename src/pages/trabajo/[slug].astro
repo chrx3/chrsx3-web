@@ -1,19 +1,18 @@
 ---
-import { ClientRouter } from 'astro:transitions'
-import { Font, Picture } from 'astro:assets'
-import '../../styles/global.css'
-import { meta, work } from '../../data/site'
+import { Picture } from 'astro:assets'
+import Base from '../../layouts/Base.astro'
+import { work } from '../../data/site'
 
 export function getStaticPaths() {
   return work.map((project, i) => ({
     params: { slug: project.slug },
     /* El siguiente da la vuelta al final: la ficha nunca queda sin salida */
-    props: { project, next: work[(i + 1) % work.length] },
+    props: { project, index: i, next: work[(i + 1) % work.length], nextIndex: (i + 1) % work.length },
   }))
 }
 
-const { project, next } = Astro.props
-const year = new Date().getFullYear()
+const { project, index, next, nextIndex } = Astro.props
+const pad = (n: number) => String(n).padStart(2, '0')
 
 /* Solo se listan los datos que estén escritos en site.ts. Sin relleno. */
 const facts = [
@@ -26,155 +25,133 @@ const facts = [
 const title = `${project.name} — ${project.tag} · Christian Alcántara`
 const cta = project.cta ?? `Abrir ${project.host}`
 const shotNote = project.shotNote ?? 'Captura completa del sitio en producción'
+
+const nav = [
+  { href: '/#trabajo', label: '← Trabajo', keep: true },
+  { href: '/#contacto', label: 'Hablemos', cta: true },
+]
 ---
 
-<!doctype html>
-<html lang="es-CL">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={project.line} />
-    <link rel="canonical" href={`https://chrsx3.com/trabajo/${project.slug}/`} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#121212" />
+<Base
+  title={title}
+  ogTitle={`${project.name} — ${project.tag}`}
+  description={project.line}
+  path={`/trabajo/${project.slug}/`}
+  ogType="article"
+  nav={nav}
+>
+  <section class="wrap grid-12 case-head" aria-labelledby="h-case">
+    <div class="case-meta">
+      <p class="label">Ficha {pad(index + 1)} / {pad(work.length)}</p>
+      <dl>
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="label">{f.k}</dt>
+              <dd>{f.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
 
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content={`https://chrsx3.com/trabajo/${project.slug}/`} />
-    <meta property="og:title" content={`${project.name} — ${project.tag}`} />
-    <meta property="og:description" content={project.line} />
-    <meta property="og:locale" content="es_CL" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <div class="case-main">
+      <p class="label">{project.tag}</p>
+      <h1 class="case-title" id="h-case" transition:name={`name-${project.slug}`}>{project.name}</h1>
+      <p class="case-line">{project.line}</p>
+      {project.detail && <p class="case-detail">{project.detail}</p>}
 
-    <script is:inline>
-      document.documentElement.classList.add('js-reveal')
-    </script>
-
-    <Font cssVariable="--font-display" preload />
-    <Font cssVariable="--font-body" preload />
-    <Font cssVariable="--font-mono" />
-
-    <ClientRouter />
-  </head>
-
-  <body>
-    <div class="grid-lines" aria-hidden="true"></div>
-
-    <header class="nav">
-      <div class="shell nav-in">
-        <a class="brand" href="/"><span class="brand-dot" aria-hidden="true"></span>chrsx3</a>
-        <nav class="nav-links">
-          <a href="/#trabajo">← Todo el trabajo</a>
-          <a class="nav-cta" href={meta.whatsapp} target="_blank" rel="noopener">Hablemos</a>
-        </nav>
+      <div class="btns">
+        {
+          project.downloads?.map((d) => (
+            <a class="btn btn-solid" href={d.url} target="_blank" rel="noopener">
+              {d.label} <span class="arrow" aria-hidden="true">↓</span>
+            </a>
+          ))
+        }
+        <a
+          class:list={['btn', project.downloads?.length ? 'btn-line' : 'btn-solid']}
+          href={project.url}
+          target="_blank"
+          rel="noopener"
+        >
+          {cta} <span class="arrow" aria-hidden="true">↗</span>
+        </a>
       </div>
-    </header>
+    </div>
+  </section>
 
-    <main>
-      <section class="shell case-head">
-        <p class="mono">{project.tag}</p>
-        <h1 transition:name={`name-${project.slug}`}>{project.name}</h1>
-        <p class="case-line">{project.line}</p>
-        {project.detail && <p class="case-detail">{project.detail}</p>}
-
-        <dl class="case-facts">
-          {
-            facts.map((f) => (
-              <div class="fact">
-                <dt class="mono">{f.k}</dt>
-                <dd>{f.v}</dd>
-              </div>
-            ))
-          }
-        </dl>
-
-        <div class="case-actions">
-          <a class="btn btn-solid" href={project.url} target="_blank" rel="noopener">
-            {cta} <span class="arrow" aria-hidden="true">↗</span>
-          </a>
-          {
-            project.download && (
-              <a class="btn btn-ghost" href={project.download.url} target="_blank" rel="noopener">
-                {project.download.label} <span class="arrow" aria-hidden="true">↗</span>
-              </a>
-            )
-          }
+  {
+    project.features?.length ? (
+      <section class="wrap grid-12 case-sec" aria-label="Qué hace">
+        <p class="label">Qué hace</p>
+        <div class="case-body">
+          <ul class="feats">
+            {project.features.map((f) => (
+              <li>
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
+    ) : null
+  }
+
+  <!-- La captura completa: la que el visor de la portada recorre, acá entera -->
+  <section class="wrap grid-12 case-sec" aria-label="Captura">
+    <p class="label">Captura</p>
+    <div class="case-body">
+      <figure>
+        <div class="shot-wrap">
+          <div class="chrome"><i></i><i></i><i></i><span>{project.host}</span></div>
+          <div class="shot">
+            <Picture
+              src={project.shot}
+              formats={['avif', 'webp']}
+              widths={[720, 1080, 1440]}
+              sizes="(min-width: 1440px) 1000px, (min-width: 901px) 70vw, calc(100vw - 2rem)"
+              alt={`Captura de ${project.name}`}
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        </div>
+        <figcaption class="label case-note">{shotNote}</figcaption>
+      </figure>
 
       {
-        project.features?.length && (
-          <section class="shell case-features">
-            <h2 class="mono">Qué hace</h2>
-            <div class="case-tools">
-              {project.features.map((f, i) => (
-                <article class="case-tool">
-                  <span class="idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                  <h3>{f.title}</h3>
-                  <p>{f.body}</p>
-                </article>
-              ))}
+        project.gallery?.map((item) => (
+          <figure>
+            <div class="shot">
+              <Picture
+                src={item.src}
+                formats={['avif', 'webp']}
+                widths={[720, 1080]}
+                sizes="(min-width: 1440px) 1000px, (min-width: 901px) 70vw, calc(100vw - 2rem)"
+                alt={item.caption}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
-          </section>
-        )
+            <figcaption class="label case-note">{item.caption}</figcaption>
+          </figure>
+        ))
       }
+    </div>
+  </section>
 
-      <!-- La captura completa: el recorrido que en la portada se insinúa, acá entero -->
-      <section class="shell case-shot-wrap">
-        <figure class="case-shot" transition:name={`shot-${project.slug}`}>
-          <span class="reel-chrome">
-            <span class="reel-dots" aria-hidden="true"></span>
-            <span class="reel-host">{project.host}</span>
-          </span>
-          <Picture
-            src={project.shot}
-            formats={['avif', 'webp']}
-            widths={[720, 1080, 1440]}
-            sizes="(max-width: 1120px) 100vw, 1040px"
-            alt={`Captura de ${project.name}`}
-            loading="eager"
-            decoding="async"
-          />
-        </figure>
-        <p class="case-note mono">{shotNote}</p>
-      </section>
+  <nav class="wrap case-next" aria-label="Siguiente proyecto">
+    <div class="row">
+      <a class="row-link" href={`/trabajo/${next.slug}/`}>
+        <span class="no">{pad(nextIndex + 1)}</span>
+        <span class="nm">{next.name}</span>
+        <span class="host" aria-hidden="true">→</span>
+        <span class="kind">Siguiente proyecto · {next.tag}</span>
+      </a>
+    </div>
+  </nav>
 
-      {
-        project.gallery?.length && (
-          <section class="shell case-gallery">
-            {project.gallery.map((item) => (
-              <div>
-                <figure class="case-shot">
-                  <Picture
-                    src={item.src}
-                    formats={['avif', 'webp']}
-                    widths={[720, 1080]}
-                    sizes="(max-width: 1120px) 100vw, 1040px"
-                    alt={item.caption}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
-                <p class="case-note mono">{item.caption}</p>
-              </div>
-            ))}
-          </section>
-        )
-      }
-
-      <section class="shell case-next">
-        <a class="next-card" href={`/trabajo/${next.slug}`}>
-          <span class="mono">Siguiente proyecto</span>
-          <span class="next-name">{next.name} <span class="arrow" aria-hidden="true">→</span></span>
-        </a>
-      </section>
-    </main>
-
-    <footer class="shell foot">
-      <div class="foot-in">
-        <span>© {year} Christian Alcántara · Santiago de Chile</span>
-        <a href="/#contacto">Hablemos →</a>
-      </div>
-    </footer>
-  </body>
-</html>
+  <a slot="foot" href="/#contacto">Hablemos →</a>
+</Base>

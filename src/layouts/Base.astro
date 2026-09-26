@@ -1,0 +1,181 @@
+---
+/* Esqueleto común de la portada y las fichas: head, barra, pie y el único
+   script de cliente del sitio. */
+import { ClientRouter } from 'astro:transitions'
+import '../styles/global.css'
+import { meta } from '../data/site'
+
+type NavItem = { href: string; label: string; cta?: boolean; keep?: boolean }
+
+interface Props {
+  title: string
+  description: string
+  /** Ruta canónica, con barra final (p. ej. «/trabajo/atic/») */
+  path: string
+  ogType?: 'website' | 'article'
+  ogTitle?: string
+  nav: NavItem[]
+  /** El gato cruza el pie solo en la portada; las fichas llevan pie compacto */
+  cat?: boolean
+}
+
+const { title, description, path, ogType = 'website', ogTitle = title, nav, cat = false } = Astro.props
+const url = new URL(path, Astro.site).href
+const year = new Date().getFullYear()
+
+/* Mismo bloque cobalto que el cursor del titular. En línea: cero peticiones. */
+const favicon =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23121319'/%3E%3Crect x='9' y='9' width='8' height='14' fill='%237d86ff'/%3E%3C/svg%3E"
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <link rel="icon" href={favicon} type="image/svg+xml" />
+    <meta name="theme-color" content="#121319" />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="es_CL" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <ClientRouter />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip" href="#contenido">Saltar al contenido</a>
+
+    <header class="bar">
+      <div class="wrap bar-in">
+        <a class="brand" href="/" aria-label="chrsx3, inicio">chrsx3<span>.</span></a>
+        <p class="clock label">
+          {meta.city} · <time id="clock">—</time>
+        </p>
+        <nav aria-label="Principal">
+          <ul>
+            {
+              nav.map((item) => (
+                <li class:list={[item.keep && 'keep']}>
+                  <a class:list={[item.cta && 'cta']} href={item.href}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      {
+        cat && (
+          <div class="cat" id="cat" aria-hidden="true">
+            <img class="walk" src="/cat/walk.webp" width="138" height="107" alt="" loading="lazy" decoding="async" />
+            <img class="sit" src="/cat/sit.png" width="160" height="160" alt="" loading="lazy" decoding="async" />
+          </div>
+        )
+      }
+      <div class="wrap foot-in label">
+        <span>© {year} {meta.name} · {meta.city}</span>
+        <slot name="foot">
+          <span>Astro · servidor propio</span>
+        </slot>
+      </div>
+    </footer>
+
+    <script>
+      /* Todo cuelga de `astro:page-load`, que corre en la carga inicial y
+         después de cada transición de vista: el script se ejecuta una sola vez,
+         pero el DOM que maneja se reemplaza en cada navegación. */
+      let clockTimer: number | undefined
+
+      document.addEventListener('astro:page-load', () => {
+        // Hora de Santiago en la barra: dato real, sin red
+        window.clearInterval(clockTimer)
+        const clock = document.getElementById('clock') as HTMLTimeElement | null
+        if (clock) {
+          const fmt = new Intl.DateTimeFormat('es-CL', {
+            timeZone: 'America/Santiago',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+          const tick = () => {
+            const now = new Date()
+            clock.textContent = fmt.format(now)
+            clock.dateTime = now.toISOString()
+          }
+          tick()
+          clockTimer = window.setInterval(tick, 30000)
+        }
+
+        // Visor: la fila bajo el cursor o con foco elige la captura
+        const rows = [...document.querySelectorAll<HTMLElement>('.row[data-shot]')]
+        const shots = [...document.querySelectorAll<HTMLImageElement>('.viewer-frame img')]
+        const host = document.getElementById('viewer-host')
+        const no = document.getElementById('viewer-no')
+        const cap = document.getElementById('viewer-cap')
+        if (rows.length && shots.length && host && no && cap) {
+          const total = String(rows.length).padStart(2, '0')
+          const activate = (row: HTMLElement) => {
+            if (row.classList.contains('is-on')) return
+            const key = row.dataset.shot
+            rows.forEach((r) => r.classList.toggle('is-on', r === row))
+            let still = false
+            shots.forEach((img) => {
+              const on = img.dataset.shot === key
+              img.classList.toggle('is-on', on)
+              if (on) still = img.classList.contains('is-still')
+            })
+            host.textContent = row.dataset.host ?? ''
+            no.textContent = `${row.dataset.no} / ${total}`
+            cap.textContent = still ? 'Captura de pantalla' : 'Captura de página completa'
+          }
+          // pointermove y no pointerenter: al hacer scroll con el mouse quieto, la fila
+          // que pasa por debajo no le roba el visor a la que tiene el foco del teclado
+          rows.forEach((row) => {
+            row.addEventListener('pointermove', () => activate(row))
+            row.addEventListener('focusin', () => activate(row))
+          })
+        }
+
+        // El gato cruza el pie una vez, cuando aparece, y se sienta al final
+        const cat = document.getElementById('cat')
+        const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (cat && !calm && 'IntersectionObserver' in window) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              if (!entries[0].isIntersecting) return
+              io.disconnect()
+              cat.classList.add('is-walking')
+              cat.addEventListener(
+                'animationend',
+                () => {
+                  cat.style.left = 'calc(100% - var(--gut) - 56px)'
+                  cat.classList.remove('is-walking')
+                },
+                { once: true }
+              )
+            },
+            { threshold: 1 }
+          )
+          io.observe(cat)
+          document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true })
+        }
+      })
+    </script>
+  </body>
+</html>
