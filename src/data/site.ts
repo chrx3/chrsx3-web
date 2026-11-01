@@ -120,7 +120,7 @@ export const work = [
     gallery: [
       { src: aticTira, caption: 'La pill en el notch, con su tira de herramientas y el panel de Sistema' },
       { src: aticReuniones, caption: 'Reuniones: grabaciones, transcripción y resumen' },
-      { src: aticPizarra, caption: 'Pizarra: marcá la pantalla congelada' },
+      { src: aticPizarra, caption: 'Pizarra: marca la pantalla congelada' },
       { src: aticCelular, caption: 'Celular: avisos del teléfono en el PC' },
       { src: aticAjustes, caption: 'Ajustes' },
       { src: aticMarca, caption: 'Marca del proyecto' },
@@ -128,7 +128,7 @@ export const work = [
     features: [
       {
         title: 'Agentes y Atic Code',
-        body: 'Claude Code, Codex, Cursor y OpenCode en una consola con interfaz. Atic Code suma un espacio de trabajo con carpetas, paneles, cambios y vista previa web. Atic no autentica: usa el CLI que ya tenés logueado.',
+        body: 'Claude Code, Codex, Cursor y OpenCode en una consola con interfaz. Atic Code suma un espacio de trabajo con carpetas, paneles, cambios y vista previa web. Atic no autentica: usa el CLI que ya tienes logueado.',
       },
       {
         title: 'Reuniones',
@@ -140,19 +140,19 @@ export const work = [
       },
       {
         title: 'Capturas',
-        body: 'Ventana, región o monitor, al portapapeles y a un shelf flotante. Grabá la pantalla y, en Mac, editala y exportala. Copiar texto elige el texto de una imagen por columnas.',
+        body: 'Ventana, región o monitor, al portapapeles y a un shelf flotante. Graba la pantalla y, en Mac, edítala y expórtala. Copiar texto elige el texto de una imagen por columnas.',
       },
       {
         title: 'Pizarra y Flip',
-        body: 'Congelá la pantalla y marcala ahí mismo, o dibujá y anotá en Flip. Lo dibujado se puede mandar a un agente.',
+        body: 'Congela la pantalla y márcala ahí mismo, o dibuja y anota en Flip. Lo dibujado se puede mandar a un agente.',
       },
       {
         title: 'Clipboard y Textos',
-        body: 'Historial local de texto e imágenes, que no archiva lo que un gestor de contraseñas marcó como efímero, y aparte los textos que guardás vos.',
+        body: 'Historial local de texto e imágenes, que no archiva lo que un gestor de contraseñas marcó como efímero, y aparte los textos que guardas tú.',
       },
       {
         title: 'Celular',
-        body: 'Emparejá tu Android con un QR: archivos, avisos, llamadas, portapapeles, control táctil y la pantalla de uno en el otro. Sin cuentas ni nube.',
+        body: 'Empareja tu Android con un QR: archivos, avisos, llamadas, portapapeles, control táctil y la pantalla de uno en el otro. Sin cuentas ni nube.',
       },
       {
         title: 'Apps',
