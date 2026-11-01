@@ -1,14 +1,14 @@
 /* `shot` es la captura completa: el visor de la portada la recorre entera y la
    ficha la muestra sin recortar. `shotTop` es solo el encabezado en 16:10, para
    la tira sobre el pliegue y las miniaturas del índice en móvil. */
-import atic from '../assets/shots/atic.jpg'
+import atic from '../assets/shots/atic-code.png'
 import halftone from '../assets/shots/halftone.jpg'
 import hminova from '../assets/shots/hminova.jpg'
 import katemi from '../assets/shots/katemi.jpg'
 import pedi from '../assets/shots/pedi.jpg'
 import petfloat from '../assets/shots/petfloat.jpg'
 
-import aticTop from '../assets/shots/reel/atic.jpg'
+import aticTop from '../assets/shots/reel/atic-code.png'
 import halftoneTop from '../assets/shots/reel/halftone.jpg'
 import hminovaTop from '../assets/shots/reel/hminova.jpg'
 import katemiTop from '../assets/shots/reel/katemi.jpg'
@@ -16,33 +16,53 @@ import pediTop from '../assets/shots/reel/pedi.jpg'
 import petfloatTop from '../assets/shots/reel/petfloat.jpg'
 
 import aticMarca from '../assets/shots/atic/marca.jpg'
+import aticTira from '../assets/shots/atic/tira.png'
+import aticReuniones from '../assets/shots/atic/reuniones.png'
+import aticAjustes from '../assets/shots/atic/ajustes.png'
+import aticPizarra from '../assets/shots/atic/pizarra.png'
+import aticCelular from '../assets/shots/atic/celular.png'
 
 /* Atic se publica en GitHub Releases, así que la ficha no escribe la versión ni
-   los enlaces a mano: los resuelve del último release en cada build. Si la API
-   no responde, cae a estos valores de respaldo, que conviene refrescar de vez
-   en cuando. */
+   los enlaces a mano: los resuelve de los últimos releases en cada build. No
+   todos los releases traen los dos instaladores (a veces se publica solo el de
+   macOS), así que cada botón apunta al release más nuevo que sí tenga el suyo y,
+   si no es el último, lo dice. Si la API no responde, cae a estos valores de
+   respaldo, que conviene refrescar de vez en cuando. */
+const releasesPage = 'https://github.com/chrx3/atic/releases/latest'
 const aticFallback = {
-  tag: 'v0.4.41',
-  windows: 'https://github.com/chrx3/atic/releases/latest',
-  mac: 'https://github.com/chrx3/atic/releases/latest',
+  tag: 'v0.5.5',
+  windows: releasesPage,
+  windowsTag: undefined as string | undefined,
+  mac: releasesPage,
 }
 
 async function aticRelease() {
   try {
-    const res = await fetch('https://api.github.com/repos/chrx3/atic/releases/latest', {
+    const res = await fetch('https://api.github.com/repos/chrx3/atic/releases?per_page=15', {
       headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'chrsx3-web' },
       signal: AbortSignal.timeout(8000),
     })
     if (!res.ok) return aticFallback
-    const rel = (await res.json()) as {
+    const releases = (await res.json()) as {
       tag_name?: string
+      draft?: boolean
+      prerelease?: boolean
       assets?: { name: string; browser_download_url: string }[]
+    }[]
+    const published = releases.filter((r) => !r.draft && !r.prerelease)
+    const find = (re: RegExp) => {
+      for (const rel of published) {
+        const asset = rel.assets?.find((a) => re.test(a.name))
+        if (asset) return { url: asset.browser_download_url, tag: rel.tag_name }
+      }
     }
-    const asset = (re: RegExp) => rel.assets?.find((a) => re.test(a.name))?.browser_download_url
+    const windows = find(/x64-setup\.exe$/i)
+    const mac = find(/universal\.dmg$/i) ?? find(/\.dmg$/i)
     return {
-      tag: rel.tag_name ?? aticFallback.tag,
-      windows: asset(/x64-setup\.exe$/i) ?? aticFallback.windows,
-      mac: asset(/universal\.dmg$/i) ?? asset(/\.dmg$/i) ?? aticFallback.mac,
+      tag: published[0]?.tag_name ?? aticFallback.tag,
+      windows: windows?.url ?? releasesPage,
+      windowsTag: windows?.tag,
+      mac: mac?.url ?? releasesPage,
     }
   } catch {
     return aticFallback
@@ -82,45 +102,61 @@ export const work = [
     shot: atic,
     shotTop: aticTop,
     featured: true,
-    line: 'Asistente de escritorio local-first. Grabá reuniones, dictá, capturá y pegá — sin ir a buscar una ventana.',
+    line: 'Caja de herramientas de escritorio local-first en una pill flotante: agentes, reuniones, dictado, capturas y más — sin ir a buscar una ventana.',
     detail:
-      'Vive en una barra flotante (la pill), la bandeja del sistema y atajos globales. El audio se graba en tu PC; Whisper transcribe en local. Licencia MIT.',
+      'Rust puro con GPUI, para Windows y macOS. Vive en una pill flotante (en Mac, en el notch) y en atajos globales. El audio se graba en tu equipo y Whisper transcribe en local. Licencia MIT.',
     year: '2026',
     role: 'Autor',
-    stack: ['Tauri', 'Svelte', 'Rust', 'Whisper'],
+    stack: ['Rust', 'GPUI', 'Whisper'],
     cta: 'Ver en GitHub',
     downloads: [
-      { label: 'Descargar para Windows', url: latestAtic.windows },
+      {
+        label: `Descargar para Windows${latestAtic.windowsTag && latestAtic.windowsTag !== latestAtic.tag ? ` (${latestAtic.windowsTag})` : ''}`,
+        url: latestAtic.windows,
+      },
       { label: 'Descargar para macOS', url: latestAtic.mac },
     ],
-    shotNote: `Repositorio público · ${latestAtic.tag} · MIT`,
+    shotNote: `Atic Code · repositorio público · ${latestAtic.tag} · MIT`,
     gallery: [
+      { src: aticTira, caption: 'La pill en el notch, con su tira de herramientas y el panel de Sistema' },
+      { src: aticReuniones, caption: 'Reuniones: grabaciones, transcripción y resumen' },
+      { src: aticPizarra, caption: 'Pizarra: marca la pantalla congelada' },
+      { src: aticCelular, caption: 'Celular: avisos del teléfono en el PC' },
+      { src: aticAjustes, caption: 'Ajustes' },
       { src: aticMarca, caption: 'Marca del proyecto' },
     ],
     features: [
       {
+        title: 'Agentes y Atic Code',
+        body: 'Claude Code, Codex, Cursor y OpenCode en una consola con interfaz. Atic Code suma un espacio de trabajo con carpetas, paneles, cambios y vista previa web. Atic no autentica: usa el CLI que ya tienes logueado.',
+      },
+      {
         title: 'Reuniones',
-        body: 'Mic + sistema en pistas separadas, transcripción local, resumen editable, envío por correo. La detección de llamadas solo sugiere grabar.',
+        body: 'Mic + sistema en pistas separadas, transcripción local con subtítulos en vivo, resumen editable y envío por correo. La detección de llamadas solo sugiere grabar.',
       },
       {
         title: 'Dictado',
         body: 'Atajo global (toggle o push-to-talk). Transcribe y pega donde estabas escribiendo.',
       },
       {
-        title: 'Clipboard',
-        body: 'Historial local de texto e imágenes. No archiva lo que un gestor de contraseñas marcó como efímero.',
-      },
-      {
-        title: 'Textos',
-        body: 'Snippets a propósito, más un bloc de notas. Distinto del historial: esto lo guardás vos.',
-      },
-      {
         title: 'Capturas',
-        body: 'Ventana, región o monitor, al portapapeles y a un shelf flotante.',
+        body: 'Ventana, región o monitor, al portapapeles y a un shelf flotante. Graba la pantalla y, en Mac, edítala y expórtala. Copiar texto elige el texto de una imagen por columnas.',
+      },
+      {
+        title: 'Pizarra y Flip',
+        body: 'Congela la pantalla y márcala ahí mismo, o dibuja y anota en Flip. Lo dibujado se puede mandar a un agente.',
+      },
+      {
+        title: 'Clipboard y Textos',
+        body: 'Historial local de texto e imágenes, que no archiva lo que un gestor de contraseñas marcó como efímero, y aparte los textos que guardas tú.',
+      },
+      {
+        title: 'Celular',
+        body: 'Empareja tu Android con un QR: archivos, avisos, llamadas, portapapeles, control táctil y la pantalla de uno en el otro. Sin cuentas ni nube.',
       },
       {
         title: 'Apps',
-        body: 'Launcher tipo Spotlight (mismo atajo que Ctrl+Space).',
+        body: 'Launcher tipo Spotlight, con calculadora y emoji.',
       },
     ],
   },
@@ -266,8 +302,8 @@ export const services = [
 /** Solo lo verificable en repos propios, en el servidor o confirmado por Christian. */
 export const stack = {
   Lenguajes: ['TypeScript', 'Python', 'JavaScript', 'Rust'],
-  Front: ['React', 'Next.js', 'Astro', 'Svelte'],
+  Front: ['React', 'Next.js', 'Astro', 'Svelte', 'GPUI'],
   Móvil: ['React Native', 'Expo'],
   Datos: ['PostgreSQL', 'PocketBase'],
-  Infra: ['Docker', 'Coolify', 'Traefik', 'Linux', 'Tauri'],
+  Infra: ['Docker', 'Coolify', 'Traefik', 'Linux'],
 }
