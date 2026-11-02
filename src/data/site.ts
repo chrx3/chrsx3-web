@@ -30,7 +30,7 @@ import aticCelular from '../assets/shots/atic/celular.png'
    respaldo, que conviene refrescar de vez en cuando. */
 const releasesPage = 'https://github.com/chrx3/atic/releases/latest'
 const aticFallback = {
-  tag: 'v0.5.5',
+  tag: 'v0.5.6',
   windows: releasesPage,
   windowsTag: undefined as string | undefined,
   mac: releasesPage,
