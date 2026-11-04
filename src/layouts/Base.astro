@@ -10,22 +10,27 @@ import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import '../styles/global.css'
 import { meta } from '../data/site'
+import { langs, ui, htmlLang, ogLocale, pathFor, type Lang } from '../i18n/ui'
 
 type NavItem = { href: string; label: string; id?: string; cta?: boolean; optional?: boolean }
 
 interface Props {
   title: string
   description: string
-  /** Ruta canónica, con barra final (p. ej. «/trabajo/atic/») */
+  /** Ruta de la página en español, con barra final (p. ej. «/trabajo/atic/») */
   path: string
+  lang: Lang
   ogType?: 'website' | 'article'
   ogTitle?: string
   /** En la portada los enlaces son anclas; en las fichas apuntan a la portada */
   nav: NavItem[]
 }
 
-const { title, description, path, ogType = 'website', ogTitle = title, nav } = Astro.props
-const url = new URL(path, Astro.site).href
+const { title, description, path, lang, ogType = 'website', ogTitle = title, nav } = Astro.props
+const t = ui[lang].base
+const url = new URL(pathFor(lang, path), Astro.site).href
+const other: Lang = lang === 'es' ? 'en' : 'es'
+const otherHref = pathFor(other, path)
 const year = new Date().getFullYear()
 
 /* La pill en negro con el punto cobalto de la marca. En línea: cero peticiones. */
@@ -34,34 +39,47 @@ const favicon =
 ---
 
 <!doctype html>
-<html lang="es-CL">
+<html lang={htmlLang[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- El tema se resuelve antes de pintar: lo elegido en este navegador o, si
+         no hay nada guardado, el del sistema. Sin JS queda el claro. -->
+    <script is:inline>
+      (() => {
+        let theme = null
+        try { theme = localStorage.getItem('theme') } catch {}
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={url} />
+    {langs.map((l) => <link rel="alternate" hreflang={htmlLang[l]} href={new URL(pathFor(l, path), Astro.site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(path, Astro.site).href} />
     <link rel="icon" href={favicon} type="image/svg+xml" />
     <meta name="theme-color" content="#f1f2f4" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
 
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={url} />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:locale" content="es_CL" />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    <meta property="og:locale:alternate" content={ogLocale[other]} />
     <meta name="twitter:card" content="summary_large_image" />
 
     <slot name="head" />
   </head>
 
   <body>
-    <a class="skip" href="#contenido">Saltar al contenido</a>
+    <a class="skip" href="#contenido">{t.skip}</a>
     <canvas id="trama" aria-hidden="true"></canvas>
 
-    <nav class="pill" id="pill" aria-label="Principal">
+    <nav class="pill" id="pill" aria-label={t.navLabel}>
       <svg class="pill-shape" aria-hidden="true" focusable="false"><path id="pill-path"></path></svg>
-      <a class="brand" href="/" aria-label="chrsx3, inicio">chrsx3<span>.</span></a>
+      <a class="brand" href={pathFor(lang, '/')} aria-label={t.home}>chrsx3<span>.</span></a>
       {
         nav.map((item) => (
           <a class:list={[item.cta && 'cta', item.optional && 'opt']} href={item.href} data-nav={item.id}>
@@ -69,7 +87,27 @@ const favicon =
           </a>
         ))
       }
+      <div class="prefs" role="group" aria-label={t.prefs}>
+        <a class="lang-switch" href={otherHref} hreflang={htmlLang[other]} lang={htmlLang[other]}>
+          {t.otherLang}<span class="sr-only"> — {t.otherLangLabel}</span>
+        </a>
+        <button type="button" class="theme-toggle" data-theme-toggle data-to-dark={t.toDark} data-to-light={t.toLight} aria-label={t.toDark}>
+          <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" /></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></svg>
+        </button>
+      </div>
     </nav>
+
+    <!-- En móvil la pill no tiene sitio: idioma y tema van arriba, bajo el notch -->
+    <div class="prefs prefs-top" role="group" aria-label={t.prefs}>
+      <a class="lang-switch" href={otherHref} hreflang={htmlLang[other]} lang={htmlLang[other]}>
+        {t.otherLang}<span class="sr-only"> — {t.otherLangLabel}</span>
+      </a>
+      <button type="button" class="theme-toggle" data-theme-toggle data-to-dark={t.toDark} data-to-light={t.toLight} aria-label={t.toDark}>
+        <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" /></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></svg>
+      </button>
+    </div>
 
     <main id="contenido">
       <slot />
@@ -78,24 +116,52 @@ const favicon =
     <footer class="foot">
       <div class="wrap mono">
         <span>© {year} {meta.name} · Santiago</span>
-        <span>Hecho con Claude, en mi servidor</span>
+        <span>{t.footMade}</span>
       </div>
     </footer>
 
     <script>
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+      const root = document.documentElement
+
+      /* ---------- tema claro / oscuro ----------
+         El script en línea del head ya lo resolvió. Aquí: el botón lo fija y lo
+         guarda; sin elección guardada, sigue los cambios del sistema. Avisa con
+         «themechange» para que los canvas se vuelvan a pintar. */
+      const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')]
+      const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+      const applyTheme = (theme: string) => {
+        root.dataset.theme = theme
+        const dark = theme === 'dark'
+        toggles.forEach((b) => b.setAttribute('aria-label', (dark ? b.dataset.toLight : b.dataset.toDark) ?? ''))
+        themeMeta?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim())
+        window.dispatchEvent(new Event('themechange'))
+      }
+      toggles.forEach((b) => b.addEventListener('click', () => {
+        const theme = root.dataset.theme === 'dark' ? 'light' : 'dark'
+        try { localStorage.setItem('theme', theme) } catch {}
+        applyTheme(theme)
+      }))
+      const system = matchMedia('(prefers-color-scheme: dark)')
+      system.addEventListener('change', (e) => {
+        let saved = null
+        try { saved = localStorage.getItem('theme') } catch {}
+        if (!saved) applyTheme(e.matches ? 'dark' : 'light')
+      })
+      applyTheme(root.dataset.theme === 'dark' ? 'dark' : 'light')
 
       /* ---------- trama de fondo ----------
          Puntos halftone que se cargan en dos esquinas y se pierden hacia el
-         centro, para no pasar nunca bajo el texto. Bajo el cursor la trama se
-         revela un poco, como una lupa. Las secciones oscuras y las tarjetas la tapan. */
+         centro. Bajo el cursor la trama se revela un poco, como una lupa. Las
+         secciones oscuras y las tarjetas la tapan. */
       const tc = document.getElementById('trama') as HTMLCanvasElement | null
       const g = tc?.getContext('2d')
       if (tc && g) {
         const CELL = 14, MAXR = 2.6, LENS = 150, LENSR = 2.2
         const hover = matchMedia('(hover: hover) and (pointer: fine)').matches && !calm
         let w = 0, h = 0, dpr = 1, px = -9999, py = -9999, queued = false
-        const ink = getComputedStyle(document.documentElement).getPropertyValue('--trama').trim() || '#c2c7cf'
+        let ink = '#c2c7cf'
+        const readInk = () => { ink = getComputedStyle(root).getPropertyValue('--trama').trim() || '#c2c7cf' }
         const draw = () => {
           queued = false
           g.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -131,10 +197,12 @@ const favicon =
           draw()
         }
         window.addEventListener('resize', size)
+        window.addEventListener('themechange', () => { readInk(); queue() })
         if (hover) {
           window.addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; queue() }, { passive: true })
           document.addEventListener('pointerleave', () => { px = py = -9999; queue() })
         }
+        readInk()
         size()
       }
 

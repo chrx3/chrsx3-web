@@ -1,0 +1,627 @@
+---
+/* La portada, en cualquier idioma. La renderizan src/pages/index.astro (es) y
+   src/pages/en/index.astro (en). */
+import { Picture } from 'astro:assets'
+import Base from '../layouts/Base.astro'
+import { aticVersion } from '../data/site'
+import { getSite } from '../data/site.en'
+import { ui, fill, pathFor, type Lang } from '../i18n/ui'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const t = ui[lang]
+const h = t.home
+const { meta, work, aticTools } = getSite(lang)
+
+const atic = work.find((w) => w.slug === 'atic')!
+/* Proyectos propios: todo lo que no es Atic (tiene su capítulo) ni sitio de cliente */
+const own = work.filter((w) => w.slug !== 'atic' && !w.client)
+const clients = work.filter((w) => w.client)
+
+const mail = `mailto:${meta.email}?subject=${encodeURIComponent(h.mailSubject)}`
+const ext = { target: '_blank', rel: 'noopener' }
+const caseHref = (slug: string) => pathFor(lang, `/trabajo/${slug}/`)
+
+const nav = [
+  { href: '#atic', label: t.nav.atic, id: 'atic' },
+  { href: '#proyectos', label: t.nav.projects, id: 'proyectos' },
+  { href: '#clientes', label: t.nav.clients, id: 'clientes', optional: true },
+  { href: '#contacto', label: t.nav.contact, id: 'contacto', cta: true },
+]
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: meta.name,
+  alternateName: meta.alias,
+  jobTitle: h.jobTitle,
+  email: `mailto:${meta.email}`,
+  url: 'https://chrsx3.com',
+  address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressCountry: 'CL' },
+  sameAs: [meta.linkedin, meta.github],
+}
+
+/* El trazo de la Pizarra: contenido, no ícono, así que lleva su propia geometría */
+const markPath = 'M6 28 C 22 6, 38 34, 54 16 S 86 6, 100 24 L 112 14'
+---
+
+<Base title={h.title} ogTitle={h.ogTitle} description={meta.description} path="/" lang={lang} nav={nav}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script slot="head" type="application/json" id="home-i18n" set:html={JSON.stringify(h.js)} />
+
+  <!-- ===== portada ===== -->
+  <header class="hero" id="inicio">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="mono hero-who">{meta.name} · {meta.city}</p>
+        <h1>{h.h1Lead} <em>{h.h1Em}</em>.</h1>
+        <p class="hero-sub" set:html={h.sub} />
+        <div class="od-cluster hero-actions">
+          <a class="btn btn-solid" href="#atic">{h.ctaAtic}</a>
+          <a class="btn btn-line" href="#proyectos">{h.ctaProjects}</a>
+        </div>
+      </div>
+      <figure class="hero-media">
+        <video
+          id="hero-video"
+          src="/video/atic-capturas.mp4"
+          poster="/video/atic-capturas.jpg"
+          width="1280"
+          height="720"
+          muted
+          loop
+          playsinline
+          autoplay
+          data-autoplay
+          aria-label={h.heroVideo}></video>
+        <figcaption class="mono">
+          <span>{h.heroCaption}</span>
+          <span class="od-row">
+            <button type="button" id="hero-play" aria-controls="hero-video" aria-pressed="false">{h.js.pause}</button>
+            <a href="#atic">{h.heroMore}</a>
+          </span>
+        </figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <!-- ===== Atic ===== -->
+  <section class="dark chapter" id="atic" aria-labelledby="h-atic">
+    <div class="wrap">
+      <div class="atic-head">
+        <div class="od-stack" style="--od-gap: var(--s3)">
+          <p class="mono kicker">{h.aticKicker}</p>
+          <h2 id="h-atic">Atic</h2>
+        </div>
+        <div class="od-stack" style="--od-gap: var(--s4)">
+          <p class="lede">{h.aticLede}</p>
+          <ul class="od-cluster facts mono">
+            {h.aticFacts.map((f) => <li>{f}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <ol class="story">
+        {
+          atic.story?.map((s) => (
+            <li>
+              <p class="mono kicker">{s.label}</p>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <blockquote class="quote">{h.quote}</blockquote>
+      <p class="mono quote-by">{h.quoteBy}</p>
+
+      <!-- La pill interactiva: un panel por herramienta, renderizado acá; el script
+           solo cambia cuál se ve. Sin JS se ve el primero. -->
+      <div class="tools">
+        <h3>{h.toolsTitle}</h3>
+        <p>{h.toolsHint}</p>
+
+        <div class="toolbar" role="tablist" aria-label={h.toolsLabel} id="toolbar">
+          {
+            aticTools.map((tool, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-${tool.id}`}
+                aria-controls={`panel-${tool.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+              >
+                {tool.name}
+              </button>
+            ))
+          }
+        </div>
+
+        {
+          aticTools.map((tool, i) => (
+            <div
+              class="tool-panel"
+              id={`panel-${tool.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${tool.id}`}
+              tabindex="0"
+              hidden={i !== 0}
+            >
+              <div class="copy">
+                <p class="mono key">{tool.key}</p>
+                <h4>{tool.name}</h4>
+                <p>{tool.body}</p>
+              </div>
+              <figure class="tool-shot">
+                {tool.shot && (
+                  <Picture
+                    src={tool.shot}
+                    formats={['avif', 'webp']}
+                    widths={[Math.min(tool.shot.width, 760), tool.shot.width]}
+                    sizes="(min-width: 1024px) 680px, calc(100vw - 6rem)"
+                    alt={tool.alt ?? ''}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                )}
+                {tool.video && (
+                  <video
+                    data-src={tool.video.src}
+                    poster={tool.video.poster}
+                    width="1280"
+                    height="720"
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    aria-label={tool.alt}
+                  />
+                )}
+                {tool.steps && (
+                  <ol class="steps" aria-label={`${h.howItWorks}: ${tool.name}`}>
+                    {tool.steps.map((s, n) => (
+                      <li>
+                        <span class="mono">{n + 1}</span>
+                        {s.visual === 'key' && (
+                          <span class="keys" aria-hidden="true">
+                            <kbd>{h.shortcut}</kbd>
+                          </span>
+                        )}
+                        {s.visual === 'wave' && (
+                          <span class="wave" aria-hidden="true">
+                            <i /><i /><i /><i /><i /><i /><i />
+                          </span>
+                        )}
+                        {s.visual === 'caret' && (
+                          <span class="caret-line" aria-hidden="true">
+                            {s.label}
+                            <b />
+                          </span>
+                        )}
+                        {s.visual === 'mark' && (
+                          <span class="mark" aria-hidden="true">
+                            <svg viewBox="0 0 120 40" width="120" height="40">
+                              <path d={markPath} fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                          </span>
+                        )}
+                        <span>{s.text}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                <figcaption class="mono">{tool.caption}</figcaption>
+              </figure>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="get">
+        <h3>{h.getTitle}</h3>
+        <div class="od-cluster btns">
+          {
+            atic.downloads?.map((d) => (
+              <a class="btn btn-solid" href={d.url} {...ext}>
+                {d.label}
+              </a>
+            ))
+          }
+          <a class="btn btn-line" href={atic.url} {...ext}>{h.getCode}</a>
+        </div>
+        <p class="mono note">
+          {fill(h.getNote, { v: aticVersion })}
+          <a href={caseHref('atic')}>{h.getMore}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== método ===== -->
+  <section class="method" aria-labelledby="h-metodo">
+    <div class="wrap method-grid">
+      <h2 id="h-metodo">{h.methodTitle}</h2>
+      <div class="cols">
+        {h.method.map((m) => <p set:html={m} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== proyectos propios ===== -->
+  <section class="light" id="proyectos" aria-labelledby="h-proyectos">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="mono kicker">{h.projectsKicker}</p>
+        <h2 id="h-proyectos">{h.projectsTitle}</h2>
+      </header>
+
+      {
+        own.map((p, i) => {
+          const isAndroid = p.slug === 'atic-android'
+          const isM3 = p.slug === 'gpui-m3'
+          const isHalftone = p.slug === 'halftone-studio'
+          const isPet = p.slug === 'pet-float'
+          const external = !p.url.startsWith('mailto:')
+          return (
+            <article class:list={['project', isAndroid && 'wide', i % 2 === 1 && 'flip']} aria-labelledby={`h-${p.slug}`}>
+              <div class="info">
+                <p class="mono tag">{[p.tag, isAndroid ? p.host : p.year].filter(Boolean).join(' · ')}</p>
+                <h3 id={`h-${p.slug}`}>{p.name}</h3>
+                <p class="what">{p.line}</p>
+                {p.highlights?.length ? (
+                  <ul class="bits">
+                    {p.highlights.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {p.stack?.length ? <p class="mono stack">{p.stack.join(' · ')}</p> : null}
+                {p.install && (
+                  <div class="cargo">
+                    <code id={`cmd-${p.slug}`}>{p.install}</code>
+                    <button type="button" class="copy-cmd" data-target={`cmd-${p.slug}`} aria-describedby={`cmd-${p.slug}`}>
+                      {h.js.copy}
+                    </button>
+                  </div>
+                )}
+                <div class="od-cluster actions">
+                  <a class="btn btn-solid" href={p.url} {...(external ? ext : {})}>
+                    {p.cta ?? fill(t.case.open, { host: p.host })}
+                  </a>
+                  {p.docs && (
+                    <a class="btn btn-line" href={p.docs} {...ext}>
+                      {h.docs}
+                    </a>
+                  )}
+                  {isAndroid && (
+                    <a class="btn btn-line" href="#atic">
+                      {h.aticPc}
+                    </a>
+                  )}
+                  <a class="link more" href={caseHref(p.slug)}>
+                    {h.caseLink}
+                  </a>
+                </div>
+              </div>
+
+              {isAndroid && p.video && (
+                <div class="android-media">
+                  <div class="trailer">
+                    <video class="h" src={p.video.src} poster={p.video.poster} width="1280" height="720" controls preload="none" playsinline aria-label={p.video.label} />
+                  </div>
+                </div>
+              )}
+              {isAndroid && (
+                <ul class="phones od-rail" aria-label={fill(h.screensOf, { name: p.name })} tabindex="0">
+                  {[{ src: p.shot, caption: p.shotNote ?? p.name }, ...(p.gallery ?? [])].map((g) => (
+                    <li>
+                      <Picture src={g.src} formats={['avif', 'webp']} widths={[270, 540]} sizes="240px" alt={g.caption} loading="lazy" decoding="async" />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {isM3 && (
+                <div class="m3">
+                  <figure class="shot m3-main">
+                    <Picture src={p.shot} formats={['avif', 'webp']} widths={[720, 1280]} sizes="(min-width: 1024px) 700px, calc(100vw - 2rem)" alt={`${p.name}: ${p.shotNote}`} loading="lazy" decoding="async" />
+                  </figure>
+                  <div class="m3-grid">
+                    {p.gallery?.map((g) => (
+                      <figure class="shot">
+                        <Picture src={g.src} formats={['avif', 'webp']} widths={[320, 640]} sizes="(min-width: 1024px) 230px, 30vw" alt={g.caption} loading="lazy" decoding="async" />
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {isHalftone && (
+                <div class="ht">
+                  <div class="ht-stage">
+                    <canvas id="ht-canvas" width="1280" height="720" role="img" aria-label={h.htLabel} data-text={h.htText} />
+                  </div>
+                  <div class="od-cluster ht-controls">
+                    <label for="ht-size">
+                      {h.htSize}
+                      <input type="range" id="ht-size" min="6" max="24" step="1" value="12" />
+                    </label>
+                    <div class="seg" role="group" aria-label={h.htShape}>
+                      <button type="button" data-shape="circle" aria-pressed="true">{h.htCircle}</button>
+                      <button type="button" data-shape="square" aria-pressed="false">{h.htSquare}</button>
+                    </div>
+                  </div>
+                  <p class="mono ht-cap">{h.htCaption}</p>
+                </div>
+              )}
+
+              {isPet && (
+                <div class="cat-stage">
+                  <div class="cat-run" id="cat-run" aria-hidden="true">
+                    <div class="cat" id="cat">
+                      <img class="walk" src="/cat/walk.webp" width="138" height="107" alt="" hidden />
+                      <img class="sit" src="/cat/sit.png" width="160" height="160" alt="" />
+                    </div>
+                  </div>
+                  <div class="od-row cat-ctrl">
+                    <button type="button" id="cat-go">{h.catGo}</button>
+                    <span class="mono" id="cat-status" aria-live="polite">{h.js.sitting}</span>
+                  </div>
+                </div>
+              )}
+
+              {!isAndroid && !isM3 && !isHalftone && !isPet && (
+                <div class="shot">
+                  <Picture src={p.shotTop} formats={['avif', 'webp']} widths={[380, 760]} sizes="(min-width: 1024px) 700px, calc(100vw - 2rem)" alt={fill(h.homeOf, { host: p.host })} loading="lazy" decoding="async" />
+                </div>
+              )}
+            </article>
+          )
+        })
+      }
+    </div>
+  </section>
+
+  <!-- ===== clientes ===== -->
+  <section class="clients" id="clientes" aria-labelledby="h-clientes">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="mono kicker">{h.clientsKicker}</p>
+        <h2 id="h-clientes">{h.clientsTitle}</h2>
+      </header>
+      <ul class="client-list">
+        {
+          clients.map((c) => (
+            <li>
+              <a class="client" href={caseHref(c.slug)}>
+                <Picture src={c.shotTop} formats={['avif', 'webp']} widths={[180, 360]} sizes="180px" alt="" loading="lazy" decoding="async" />
+                <span class="od-field">
+                  <strong>{c.name}</strong>
+                  <span class="mono host">{c.host}</span>
+                  <span class="desc">{c.line}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== sobre mí + contacto ===== -->
+  <section class="about" id="contacto" aria-labelledby="h-contacto">
+    <div class="wrap about-grid">
+      <div>
+        {h.about.map((a) => <p set:html={a} />)}
+      </div>
+      <div class="contact">
+        <h2 id="h-contacto">{h.contactTitle}</h2>
+        <a class="link mail" href={mail}>{meta.email}</a>
+        <ul class="od-cluster">
+          <li><a class="link" href={meta.github} {...ext}>GitHub</a></li>
+          <li><a class="link" href={meta.linkedin} {...ext}>LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+  /* Textos que cambian en el cliente, en el idioma de la página */
+  const T: Record<string, string> = JSON.parse(document.getElementById('home-i18n')?.textContent || '{}')
+
+  /* ---------- video de portada: sin autoplay si el usuario pide calma ---------- */
+  document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]').forEach((v) => {
+    if (calm) { v.removeAttribute('autoplay'); v.pause(); v.controls = true }
+  })
+
+  /* El video en bucle tiene que poder detenerse (WCAG 2.2.2) */
+  const heroVideo = document.getElementById('hero-video') as HTMLVideoElement | null
+  const heroPlay = document.getElementById('hero-play') as HTMLButtonElement | null
+  if (heroVideo && heroPlay) {
+    const sync = () => {
+      heroPlay.textContent = heroVideo.paused ? T.play : T.pause
+      heroPlay.setAttribute('aria-pressed', String(heroVideo.paused))
+    }
+    heroPlay.addEventListener('click', () => {
+      if (heroVideo.paused) heroVideo.play().catch(() => { heroVideo.controls = true })
+      else heroVideo.pause()
+    })
+    heroVideo.addEventListener('play', sync)
+    heroVideo.addEventListener('pause', sync)
+    sync()
+  }
+
+  /* ---------- la pill de Atic: pestañas ---------- */
+  const bar = document.getElementById('toolbar')
+  if (bar) {
+    const tabs = [...bar.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+    const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls') ?? '')!)
+    const select = (i: number, focus: boolean) => {
+      tabs.forEach((b, j) => {
+        const on = j === i
+        b.setAttribute('aria-selected', String(on))
+        b.tabIndex = on ? 0 : -1
+        const panel = panels[j]
+        if (!panel) return
+        panel.hidden = !on
+        // El video se carga recién cuando su pestaña se abre, y se pausa al salir
+        const video = panel.querySelector<HTMLVideoElement>('video[data-src]')
+        if (video) {
+          if (on) {
+            if (!video.getAttribute('src')) video.src = video.dataset.src ?? ''
+            video.controls = calm
+            if (!calm) video.play().catch(() => { video.controls = true })
+          } else {
+            video.pause()
+          }
+        }
+        if (on && !calm) { panel.classList.remove('is-in'); void panel.offsetWidth; panel.classList.add('is-in') }
+      })
+      if (focus) { tabs[i].focus(); tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' }) }
+    }
+    bar.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[role="tab"]')
+      if (b) select(tabs.indexOf(b), false)
+    })
+    bar.addEventListener('keydown', (e) => {
+      const cur = tabs.findIndex((b) => b.getAttribute('aria-selected') === 'true')
+      let n: number | null = null
+      if (e.key === 'ArrowRight') n = (cur + 1) % tabs.length
+      if (e.key === 'ArrowLeft') n = (cur - 1 + tabs.length) % tabs.length
+      if (e.key === 'Home') n = 0
+      if (e.key === 'End') n = tabs.length - 1
+      if (n !== null) { e.preventDefault(); select(n, true) }
+    })
+  }
+
+  /* ---------- copiar comandos de instalación ---------- */
+  document.querySelectorAll<HTMLButtonElement>('.copy-cmd').forEach((btn) => {
+    const cmd = document.getElementById(btn.dataset.target ?? '')
+    if (!cmd) return
+    let timer: number | undefined
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(cmd.textContent?.trim() ?? '')
+        btn.textContent = T.copied
+      } catch {
+        const r = document.createRange()
+        r.selectNodeContents(cmd)
+        const sel = getSelection()
+        sel?.removeAllRanges()
+        sel?.addRange(r)
+        btn.textContent = T.selected
+      }
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => { btn.textContent = T.copy }, 1800)
+    })
+  })
+
+  /* ---------- Halftone: trama en vivo sobre un canvas propio ----------
+     Pinta con los colores del tema (superficie y acento), y se vuelve a pintar
+     cuando el tema cambia. */
+  const cv = document.getElementById('ht-canvas') as HTMLCanvasElement | null
+  const sizeInput = document.getElementById('ht-size') as HTMLInputElement | null
+  const shapeBtns = [...document.querySelectorAll<HTMLButtonElement>('.seg [data-shape]')]
+  const ctx = cv?.getContext('2d')
+  if (cv && ctx) {
+    const W = cv.width, H = cv.height
+    const word = cv.dataset.text || 'a mano'
+    const src = document.createElement('canvas')
+    src.width = W
+    src.height = H
+    const s = src.getContext('2d', { willReadFrequently: true })!
+    let shape = 'circle'
+    const token = (name: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+    const paintSource = () => {
+      s.fillStyle = '#fff'
+      s.fillRect(0, 0, W, H)
+      const lg = s.createLinearGradient(0, 0, W, H)
+      lg.addColorStop(0, '#000')
+      lg.addColorStop(1, '#bbb')
+      s.fillStyle = lg
+      s.font = `800 ${Math.round(H * 0.42)}px "Schibsted Grotesk", "Helvetica Neue", sans-serif`
+      s.textAlign = 'center'
+      s.textBaseline = 'middle'
+      // El texto se achica si no cabe (en inglés es más largo)
+      const fit = Math.min(1, (W * 0.9) / s.measureText(word).width)
+      s.font = `800 ${Math.round(H * 0.42 * fit)}px "Schibsted Grotesk", "Helvetica Neue", sans-serif`
+      s.fillText(word, W / 2, H * 0.5)
+      const r = s.createRadialGradient(W * 0.86, H * 0.18, 0, W * 0.86, H * 0.18, H * 0.34)
+      r.addColorStop(0, 'rgba(0,0,0,0.85)')
+      r.addColorStop(1, 'rgba(0,0,0,0)')
+      s.fillStyle = r
+      s.fillRect(0, 0, W, H)
+    }
+    const draw = () => {
+      const cell = Number(sizeInput?.value ?? 12) * 2
+      const data = s.getImageData(0, 0, W, H).data
+      ctx.fillStyle = token('--surface', '#ffffff')
+      ctx.fillRect(0, 0, W, H)
+      ctx.fillStyle = token('--accent-text', '#2a35e0')
+      for (let y = cell / 2; y < H; y += cell) {
+        for (let x = cell / 2; x < W; x += cell) {
+          const k = ((y | 0) * W + (x | 0)) * 4
+          const dark = 1 - (data[k] * 0.299 + data[k + 1] * 0.587 + data[k + 2] * 0.114) / 255
+          if (dark < 0.04) continue
+          const r = (cell / 2) * Math.sqrt(dark) * 1.05
+          if (shape === 'circle') { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill() }
+          else ctx.fillRect(x - r, y - r, r * 2, r * 2)
+        }
+      }
+    }
+    const start = () => { paintSource(); draw() }
+    start()
+    document.fonts?.ready.then(start)
+    window.addEventListener('themechange', draw)
+    sizeInput?.addEventListener('input', draw)
+    shapeBtns.forEach((b) => b.addEventListener('click', () => {
+      shape = b.dataset.shape ?? 'circle'
+      shapeBtns.forEach((o) => o.setAttribute('aria-pressed', String(o === b)))
+      draw()
+    }))
+  }
+
+  /* ---------- Pet Float: el gato cruza y se sienta ---------- */
+  const run = document.getElementById('cat-run')
+  const cat = document.getElementById('cat')
+  const go = document.getElementById('cat-go') as HTMLButtonElement | null
+  const status = document.getElementById('cat-status')
+  if (run && cat && go) {
+    const walk = cat.querySelector<HTMLImageElement>('.walk')
+    const sit = cat.querySelector<HTMLImageElement>('.sit')
+    let side = 0 // 0 = izquierda, 1 = derecha
+    const setSitting = () => {
+      if (walk) walk.hidden = true
+      if (sit) sit.hidden = false
+      cat.classList.remove('is-walking')
+      go.disabled = false
+      if (status) status.textContent = T.sitting
+    }
+    const stroll = () => {
+      if (calm) { if (status) status.textContent = T.calm; return }
+      const max = Math.max(0, run.clientWidth - 160 - 48)
+      side = side ? 0 : 1
+      if (walk) { walk.hidden = false; walk.style.transform = side ? 'none' : 'scaleX(-1)' }
+      if (sit) sit.hidden = true
+      go.disabled = true
+      if (status) status.textContent = T.walking
+      cat.classList.add('is-walking')
+      requestAnimationFrame(() => cat.style.setProperty('--x', `${side ? max : 0}px`))
+    }
+    cat.addEventListener('transitionend', setSitting)
+    go.addEventListener('click', stroll)
+    if (!calm && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => {
+        if (es[0].isIntersecting) { io.disconnect(); stroll() }
+      }, { threshold: 1 })
+      io.observe(run)
+    }
+  }
+</script>

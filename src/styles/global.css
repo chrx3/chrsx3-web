@@ -51,8 +51,10 @@
   --ink-2: #4b515b;      /* 7.4:1 sobre --bg, 8.2:1 sobre --surface */
   --rule: #d6d9de;       /* decorativo */
   --trama: #c2c7cf;      /* puntos de la trama de fondo, decorativos */
-  --accent: #2a35e0;     /* 7.0:1 sobre --bg; blanco encima 7.8:1 */
+  --accent: #2a35e0;     /* relleno: blanco encima 7.8:1 */
   --accent-hover: #1d27b8;
+  --accent-text: #2a35e0;/* acento como texto: 7.0:1 sobre --bg */
+  --accent-text-hover: #1d27b8;
 
   --dark: #0f1115;
   --dark-2: #191c22;
@@ -82,7 +84,31 @@
   --t-med: 280ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  color-scheme: light;
 }
+
+/* Tema oscuro: la pared de galería de noche, en grafito. No es el claro
+   invertido: Atic sigue siendo su propio cuarto, un escalón más hondo que la
+   pared, y el cobalto se aclara cuando es texto para seguir legible. */
+:root[data-theme="dark"] {
+  --bg: #14161b;
+  --surface: #1c1f26;
+  --ink: #eceef1;        /* 15.6:1 sobre --bg */
+  --ink-2: #a3a9b3;      /* 7.7:1 sobre --bg, 7.0:1 sobre --surface */
+  --rule: #2c3038;
+  --trama: #2f343d;
+  --accent: #3b46ee;     /* relleno: blanco encima 6.4:1 */
+  --accent-hover: #2a35e0;
+  --accent-text: #9aa1ff;/* 7.3:1 sobre --bg */
+  --accent-text-hover: #c3c7ff;
+
+  --dark: #0b0c0f;
+  --dark-2: #171a20;
+  --dark-ink-2: #a3a9b3; /* 8.4:1 sobre --dark */
+  --dark-rule: #262a31;
+  color-scheme: dark;
+}
+:root[data-theme="dark"] .dark { border-block: 1px solid var(--dark-rule); }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 96px; -webkit-text-size-adjust: 100%; }
@@ -97,7 +123,7 @@ picture { display: contents; }
 p { text-wrap: pretty; }
 h1, h2, h3 { font-family: var(--display); text-wrap: balance; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; border-radius: 4px; }
 .dark :focus-visible, .pill :focus-visible { outline-color: var(--dark-accent); }
 ::selection { background: var(--accent); color: #fff; }
 
@@ -126,8 +152,8 @@ a { color: inherit; }
   .dark .btn-solid:hover { background: #ffffff; }
   .dark .btn-line:hover { background: var(--dark-ink); color: var(--dark); }
 }
-.link { color: var(--accent); font-weight: 600; text-underline-offset: 4px; text-decoration-thickness: 2px; }
-@media (hover: hover) { .link:hover { color: var(--accent-hover); } }
+.link { color: var(--accent-text); font-weight: 600; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+@media (hover: hover) { .link:hover { color: var(--accent-text-hover); } }
 
 /* ---------- pill de navegación (como la de Atic) ---------- */
 /* Arriba de todo la pill es un notch pegado al borde; al bajar se despega y
@@ -135,7 +161,9 @@ a { color: inherit; }
    transforma cuadro a cuadro: no hay piezas separadas que dejen ver uniones. */
 .pill { position: fixed; top: 0; left: 50%; transform: translate(-50%, var(--pill-y, 0px)); z-index: 50; display: flex; align-items: center; gap: var(--s1); padding: var(--s1); color: var(--dark-ink); max-width: calc(100vw - 2 * var(--s3)); }
 .pill-shape { position: absolute; top: 0; left: -16px; width: calc(100% + 32px); height: 100%; overflow: visible; z-index: -1; pointer-events: none; filter: drop-shadow(0 8px 24px rgb(15 17 21 / var(--pill-shadow, 0))); }
-.pill-shape path { fill: var(--dark); }
+/* El borde claro solo se nota sobre las secciones oscuras, donde el relleno se
+   confunde con el fondo; sobre la pared clara queda invisible. */
+.pill-shape path { fill: var(--dark); stroke: rgb(255 255 255 / 0.16); stroke-width: 1px; }
 .pill a { display: flex; align-items: center; min-height: 44px; padding: 0 var(--s3); border-radius: 999px; text-decoration: none; font-weight: 500; font-size: 0.9375rem; white-space: nowrap; color: var(--dark-ink-2); transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out); }
 .pill .brand { color: var(--dark-ink); font-weight: 800; letter-spacing: -0.02em; }
 .pill .brand span { color: var(--dark-accent); }
@@ -149,28 +177,51 @@ a { color: inherit; }
   .pill a { padding: 0 12px; }
 }
 
+/* Idioma y tema: dentro de la pill en escritorio; en móvil, arriba a la
+   derecha bajo el notch, porque la pill ya va llena. */
+.prefs { display: flex; align-items: center; gap: var(--s1); }
+.pill .prefs { margin-left: var(--s1); padding-left: var(--s1); border-left: 1px solid var(--dark-rule); }
+.prefs .lang-switch, .prefs .theme-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 var(--s2); border: 0; border-radius: 999px; background: transparent; font: 500 var(--fs-xs)/1 var(--mono); letter-spacing: 0.04em; text-decoration: none; cursor: pointer; transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out); }
+.prefs svg { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.prefs .i-sun, :root[data-theme="dark"] .prefs .i-moon { display: none; }
+:root[data-theme="dark"] .prefs .i-sun { display: block; }
+.pill .prefs a, .pill .prefs button { color: var(--dark-ink-2); }
+@media (hover: hover) { .pill .prefs a:hover, .pill .prefs button:hover { color: var(--dark-ink); background: var(--dark-2); } }
+.prefs-top { position: absolute; top: 60px; right: var(--gut); z-index: 40; display: none; }
+.prefs-top a, .prefs-top button { color: var(--ink-2); }
+@media (hover: hover) { .prefs-top a:hover, .prefs-top button:hover { color: var(--ink); background: var(--surface); } }
+@media (max-width: 640px) {
+  .pill .prefs { display: none; }
+  .prefs-top { display: flex; }
+}
+
 /* ---------- portada ---------- */
 .hero { padding-top: calc(var(--s9) + var(--s3)); padding-bottom: var(--s8); }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s6); align-items: end; }
 .hero-who { color: var(--ink-2); margin-bottom: var(--s4); }
-.hero h1 { font-size: var(--fs-xxl); font-weight: 800; line-height: 0.98; letter-spacing: -0.035em; max-width: 12ch; }
-.hero h1 em { font-style: normal; color: var(--accent); }
+/* Escala propia: «herramientas» tiene que caber entera en la columna del titular */
+.hero h1 { font-size: clamp(2.75rem, 1rem + 5.2vw, 6rem); font-weight: 800; line-height: 0.98; letter-spacing: -0.035em; }
+.hero h1 em { font-style: normal; color: var(--accent-text); }
 .hero-sub { font-size: var(--fs-m); color: var(--ink-2); max-width: 46ch; margin-top: var(--s5); }
 .hero-sub strong { color: var(--ink); font-weight: 600; }
 .hero-actions { margin-top: var(--s5); --od-gap: var(--s3); }
 .hero-media { background: var(--dark); border-radius: var(--radius); overflow: hidden; }
 .hero-media video { width: 100%; height: auto; aspect-ratio: 16 / 9; }
-.hero-media figcaption { display: flex; justify-content: space-between; gap: var(--s3); padding: var(--s2) var(--s3); color: var(--dark-ink-2); }
-.hero-media figcaption a { color: var(--dark-ink); }
+.hero-media figcaption { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); padding: var(--s1) var(--s1) var(--s1) var(--s3); color: var(--dark-ink-2); }
+.hero-media figcaption .od-row { --od-gap: var(--s1); }
+.hero-media figcaption a, .hero-media figcaption button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--s3); border: 0; border-radius: 6px; background: transparent; color: var(--dark-ink); font: inherit; white-space: nowrap; cursor: pointer; transition: background-color var(--t-fast) var(--ease-out); }
+.hero-media figcaption .od-row { flex: none; }
+@media (hover: hover) { .hero-media figcaption a:hover, .hero-media figcaption button:hover { background: var(--dark-2); } }
+.hero-media :focus-visible { outline-color: var(--dark-accent); outline-offset: -3px; }
 @media (min-width: 1024px) {
-  .hero-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .hero-grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
 }
 
 /* ---------- capítulo: Atic ---------- */
 .dark { background: var(--dark); color: var(--dark-ink); }
 .chapter { padding-block: var(--s8) var(--s9); }
-.kicker { color: var(--dark-ink-2); }
-.light .kicker { color: var(--ink-2); }
+.kicker { color: var(--ink-2); }
+.dark .kicker { color: var(--dark-ink-2); }
 .atic-head { display: grid; gap: var(--s4); margin-bottom: var(--s7); }
 .atic-head h2 { font-size: var(--fs-xxl); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
 .atic-head .lede { font-size: var(--fs-l); line-height: 1.4; color: var(--dark-ink); max-width: 34ch; }
@@ -203,6 +254,12 @@ a { color: inherit; }
 .tools > p { color: var(--dark-ink-2); margin-bottom: var(--s5); max-width: 56ch; }
 .toolbar { display: flex; gap: var(--s1); padding: var(--s1); background: var(--dark-2); border: 1px solid var(--dark-rule); border-radius: 999px; overflow-x: auto; scrollbar-width: none; width: fit-content; max-width: 100%; }
 .toolbar::-webkit-scrollbar { display: none; }
+/* Donde las nueve no caben en una fila, se apilan: así ninguna queda escondida
+   tras un borde sin señal de que hay más. */
+@media (max-width: 1100px) {
+  .toolbar { flex-wrap: wrap; overflow: visible; width: auto; border-radius: 24px; }
+  .toolbar button { min-height: 40px; }
+}
 .toolbar button { flex: none; min-height: 44px; padding: 0 var(--s3); border: 0; border-radius: 999px; background: transparent; color: var(--dark-ink-2); font: 500 0.9375rem/1 var(--body); cursor: pointer; white-space: nowrap; transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out); }
 @media (hover: hover) { .toolbar button:hover { color: var(--dark-ink); } }
 .toolbar button[aria-selected="true"] { background: var(--dark-ink); color: var(--dark); }
@@ -222,7 +279,7 @@ a { color: inherit; }
 .get h3 { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; max-width: 18ch; }
 .get .btns { --od-gap: var(--s3); }
 .get .note { color: var(--dark-ink-2); }
-@media (min-width: 1024px) { .get { grid-template-columns: minmax(0, 1fr) auto; align-items: end; } .get .note { grid-column: 1 / -1; } }
+@media (min-width: 1200px) { .get { grid-template-columns: minmax(0, 1fr) auto; align-items: end; } .get .note { grid-column: 1 / -1; } }
 
 /* ---------- método ---------- */
 .method { padding-block: var(--s8); border-bottom: 1px solid var(--rule); }
@@ -237,8 +294,14 @@ a { color: inherit; }
 .light { padding-block: var(--s8); }
 .sec-head { display: grid; gap: var(--s2); margin-bottom: var(--s7); }
 .sec-head h2 { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
-.project { display: grid; gap: var(--s5); padding-block: var(--s7); border-top: 1px solid var(--rule); align-items: start; }
-.project:first-of-type { border-top: 0; padding-top: 0; }
+/* Entre proyecto y proyecto, una franja de trama en vez de una línea: el
+   halftone pasa de fondo a estructura, y se ve igual en móvil. */
+.project { display: grid; gap: var(--s5); padding-block: var(--s7); align-items: start; position: relative; }
+.project + .project::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 12px; pointer-events: none;
+  background-image: radial-gradient(circle, var(--trama) 1.6px, transparent 2px); background-size: 12px 12px; background-position: 0 center;
+  -webkit-mask-image: linear-gradient(90deg, #000, rgb(0 0 0 / 0.15) 70%, transparent);
+  mask-image: linear-gradient(90deg, #000, rgb(0 0 0 / 0.15) 70%, transparent); }
+.project:first-of-type { padding-top: 0; }
 .project .info { display: grid; gap: var(--s3); align-content: start; }
 .project h3 { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
 .project .tag { color: var(--ink-2); }
@@ -253,6 +316,12 @@ a { color: inherit; }
 @media (min-width: 1024px) {
   .project { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s7); }
   .project.flip .info { order: 2; }
+}
+/* En móvil la portada se queda con la línea, un medio y los botones; las
+   viñetas y las galerías completas viven en la ficha de cada proyecto. */
+@media (max-width: 640px) {
+  .project .bits, .project .stack, .m3-grid, .project.wide .phones { display: none; }
+  .project { padding-block: var(--s6); }
 }
 
 /* Atic: esquemas en código para herramientas sin captura vigente */
@@ -276,7 +345,13 @@ a { color: inherit; }
 @media (max-width: 640px) { .steps li { grid-template-columns: 24px minmax(0, 1fr); } .steps li > :last-child { grid-column: 2; } }
 
 /* Atic Android */
-.project.wide .phones { grid-column: 1 / -1; --od-gap: var(--s4); --od-rail-pad: 0px; padding-bottom: var(--s2); }
+.project.wide .phones { grid-column: 1 / -1; --od-gap: var(--s4); --od-rail-pad: 0px; padding-bottom: var(--s2); border-radius: 16px; }
+/* En la portada el trailer va horizontal también en móvil: el vertical ocupa
+   casi dos pantallas y ya está en la ficha. */
+@media (max-width: 640px) {
+  .android-media .trailer { max-width: none; }
+  .android-media .trailer .h { display: block; }
+}
 .phones li { width: clamp(180px, 22vw, 240px); }
 .phones img { width: 100%; height: auto; aspect-ratio: 540 / 960; border-radius: 16px; border: 1px solid var(--rule); background: var(--surface); }
 .android-media .trailer { background: #000; }
@@ -285,7 +360,7 @@ a { color: inherit; }
 .m3 { display: grid; gap: var(--s3); }
 .m3-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3); }
 .m3 .shot img { aspect-ratio: 1280 / 860; }
-.cargo { display: flex; align-items: center; gap: var(--s2); width: fit-content; max-width: 100%; margin-top: var(--s2); padding: var(--s1) var(--s1) var(--s1) var(--s3); background: var(--dark); color: var(--dark-ink); border-radius: var(--radius); }
+.cargo { display: flex; align-items: center; gap: var(--s2); width: fit-content; max-width: 100%; margin-top: var(--s2); padding: var(--s1) var(--s1) var(--s1) var(--s3); background: var(--dark); color: var(--dark-ink); border: 1px solid var(--dark-rule); border-radius: var(--radius); }
 .cargo code { font: 500 0.9375rem/1.4 var(--mono); }
 .cargo button { min-height: 40px; padding: 0 var(--s3); border: 0; border-radius: 6px; background: var(--dark-2); color: var(--dark-ink); font: 500 0.875rem/1 var(--body); cursor: pointer; }
 @media (hover: hover) { .cargo button:hover { background: var(--dark-rule); } }
@@ -305,7 +380,6 @@ a { color: inherit; }
 
 /* Pet Float: el gato */
 .cat-stage { position: relative; }
-.cat-stage .shot { margin-bottom: var(--s3); }
 /* Los sprites van a su tamaño nativo y sin suavizado: escalarlos a un tamaño
    no entero los deforma. La pista recorta solo en horizontal para no cortar las orejas. */
 .cat-run { position: relative; height: 200px; background: var(--dark); border-radius: var(--radius); overflow: hidden; }
@@ -332,7 +406,7 @@ a { color: inherit; }
 .client img { width: 100%; height: auto; aspect-ratio: 760 / 475; border-radius: 4px; }
 .client .od-field { --od-gap: var(--s1); }
 .client strong { font-family: var(--display); font-size: var(--fs-m); }
-.client .host { color: var(--accent); }
+.client .host { color: var(--accent-text); }
 .client .desc { color: var(--ink-2); }
 @media (min-width: 768px) {
   .client-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -345,10 +419,22 @@ a { color: inherit; }
 .about p { font-size: var(--fs-m); max-width: 56ch; color: var(--ink-2); }
 .about p + p { margin-top: var(--s3); }
 .about strong { color: var(--ink); font-weight: 600; }
-.contact h2 { font-size: var(--fs-xxl); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
+.contact h2 { font-size: clamp(2.75rem, 1.2rem + 4.6vw, 5.5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
 .contact .mail { display: inline-block; margin-top: var(--s4); font-size: var(--fs-l); }
 .contact ul { margin-top: var(--s4); --od-gap: var(--s4); }
-@media (min-width: 1024px) { .about-grid { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); align-items: end; } }
+@media (min-width: 1024px) { .about-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: end; } }
+
+/* En móvil el ritmo vertical se aprieta un escalón: los 96 px entre bloques
+   pensados para escritorio sumaban varias pantallas de aire. */
+@media (max-width: 640px) {
+  .hero { padding-top: calc(var(--s8) + var(--s5)); padding-bottom: var(--s7); }
+  .chapter { padding-block: var(--s7); }
+  .story, .quote { margin-block: var(--s7); }
+  .quote-by { margin-top: calc(-1 * var(--s6)); margin-bottom: var(--s7); }
+  .get { margin-top: var(--s7); }
+  .method, .light, .clients, .about { padding-block: var(--s7); }
+  .sec-head, .atic-head { margin-bottom: var(--s6); }
+}
 
 .foot { padding-block: var(--s5); border-top: 1px solid var(--rule); color: var(--ink-2); }
 .foot .wrap { display: flex; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
@@ -375,10 +461,21 @@ a { color: inherit; }
 .feats p { color: var(--ink-2); max-width: 46ch; }
 @media (min-width: 768px) { .feats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) { .feats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.case-gallery { display: grid; gap: var(--s6); }
-.case-gallery figure { display: grid; gap: var(--s2); }
+.case-gallery { display: grid; gap: var(--s6) var(--s5); align-items: start; }
+.case-gallery figure { display: grid; gap: var(--s2); align-content: start; }
+/* Cada captura a su ancho nativo como máximo: ampliarla solo la ablanda */
 .case-gallery .shot { justify-self: start; max-width: 100%; }
+.case-gallery .shot img { width: auto; max-width: 100%; }
 .case-gallery .shot.portrait { max-width: 360px; }
+@media (min-width: 768px) {
+  .case-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .case-gallery > figure:first-child { grid-column: 1 / -1; }
+}
+.case-story { display: grid; gap: var(--s6); }
+.case-story li { display: grid; gap: var(--s2); align-content: start; }
+.case-story h3 { font-size: var(--fs-m); font-weight: 700; }
+.case-story p { color: var(--ink-2); max-width: 52ch; }
+@media (min-width: 768px) { .case-story { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .case-gallery figcaption { color: var(--ink-2); }
 .case-next { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); padding: var(--s5) var(--s4); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); color: var(--ink); text-decoration: none; transition: border-color var(--t-fast) var(--ease-out); }
 @media (hover: hover) { .case-next:hover { border-color: var(--ink); } }

@@ -1,0 +1,12 @@
+---
+import Case from '../../../components/Case.astro'
+import { work } from '../../../data/site'
+
+export function getStaticPaths() {
+  return work.map((project) => ({ params: { slug: project.slug } }))
+}
+
+const { slug } = Astro.params
+---
+
+<Case lang="en" slug={slug} />

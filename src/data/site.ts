@@ -3,6 +3,7 @@
    la tira sobre el pliegue y las miniaturas del índice en móvil. */
 import atic from '../assets/shots/atic-code.png'
 import halftone from '../assets/shots/halftone.jpg'
+import halftone3d from '../assets/shots/halftone-3d.jpg'
 import hminova from '../assets/shots/hminova.jpg'
 import katemi from '../assets/shots/katemi.jpg'
 import pedi from '../assets/shots/pedi.jpg'
@@ -130,10 +131,22 @@ export const work = [
       { label: 'Descargar para macOS', url: latestAtic.mac },
     ],
     shotNote: `Atic Code · repositorio público · ${latestAtic.tag} · MIT`,
+    story: [
+      {
+        label: 'Por qué existe',
+        title: 'Las herramientas estaban, pero funcionaban mal.',
+        body: 'Windows trae utilidades para casi todo, pero muchas fallan o estorban. Y en las reuniones me pedían anotar mientras tenía que estar concentrado en lo que se hablaba: dos cosas a la vez.',
+      },
+      {
+        label: 'Cómo creció',
+        title: 'Cada día aparecía algo que quería tener a mano.',
+        body: 'Fui planificando cada herramienta según lo que me faltaba en el trabajo, y las quise lo más livianas posible: siempre a la vista, accesibles con un atajo, sin abrir otra aplicación.',
+      },
+    ],
     gallery: [
       { src: aticReuniones, caption: 'Reuniones: grabaciones, transcripción y resumen' },
       { src: aticCelular, caption: 'Celular: avisos del teléfono en el PC' },
-      { src: aticTextos, caption: 'Textos guardados' },
+      { src: aticTextos, caption: 'Tareas del día, en el panel de Textos' },
       { src: aticApps, caption: 'Launcher de apps' },
       { src: aticAjustes, caption: 'Ajustes' },
     ],
@@ -244,12 +257,13 @@ export const work = [
     url: 'https://halftone.chrsx3.com',
     shot: halftone,
     shotTop: halftoneTop,
-    line: 'Convierte imágenes, texto y formas en tramas halftone y dither, con vista previa en vivo y exportación PNG. Todo se procesa en el navegador.',
+    line: 'Convierte imágenes, texto, formas y figuras 3D en tramas halftone y dither, con vista previa en vivo y exportación PNG. Todo se procesa en el navegador.',
     year: '2026',
     role: 'Autor',
-    stack: ['Svelte', 'TypeScript', 'Canvas', 'Web Workers'],
+    stack: ['Svelte', 'TypeScript', 'Canvas', 'Web Workers'],
     cta: 'Abrir Halftone Studio',
     shotNote: 'En producción · sin cuenta y sin servidor de procesamiento',
+    gallery: [{ src: halftone3d, caption: 'Modo 3D: un toro en trama, que se gira arrastrándolo sobre el lienzo' }],
     highlights: [
       'El render corre en un Web Worker con OffscreenCanvas, fuera del hilo principal.',
       'Seis recetas de tinta, de una a cuatro tintas, que después se ajustan a mano.',
@@ -271,6 +285,10 @@ export const work = [
       {
         title: 'Imagen, texto y forma',
         body: 'Sube una foto o escribe una frase; las formas y el texto usan degradados para aprovechar la trama.',
+      },
+      {
+        title: '3D',
+        body: 'Esfera, toro, cubo o gota convertidos en trama. La figura se gira arrastrándola sobre el lienzo, y puede girar sola al animar.',
       },
       {
         title: 'Local',
@@ -307,8 +325,8 @@ export const work = [
     slug: 'hm-inova',
     name: 'HM Inova',
     tag: 'Sitio corporativo',
-    host: 'hminovachile.cl',
-    url: 'https://hminovachile.cl',
+    host: 'hminova.cl',
+    url: 'https://hminova.cl',
     shot: hminova,
     shotTop: hminovaTop,
     client: true,
@@ -358,6 +376,8 @@ export type Project = {
   shotNote?: string
   gallery?: { src: ImageMetadata; caption: string }[]
   features?: { title: string; body: string }[]
+  /** La historia del proyecto (por qué existe, cómo creció…). La ficha la muestra antes de «Qué hace». */
+  story?: { label: string; title: string; body: string }[]
   /** Puntos concretos que la portada lista bajo la descripción */
   highlights?: string[]
   /** Sitio de cliente: va a la lista compacta de la portada */
@@ -433,7 +453,7 @@ export const aticTools: Tool[] = [
   {
     id: 'textos', name: 'Clipboard y Textos', key: 'Historial local',
     body: 'Historial de texto e imágenes que no guarda lo que un gestor de contraseñas marcó como efímero, y aparte los textos que guardas tú.',
-    shot: aticTextos, alt: 'Panel de Textos guardados en Atic', caption: 'Textos guardados',
+    shot: aticTextos, alt: 'Panel de Textos de Atic con la lista de tareas del día', caption: 'Tareas del día, en el panel de Textos',
   },
   {
     id: 'apps', name: 'Apps', key: 'Launcher',
