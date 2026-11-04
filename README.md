@@ -5,9 +5,11 @@ Sitio personal y portafolio de Christian Alcántara.
 Astro con salida estática: la portada más una ficha por proyecto en
 `/trabajo/<slug>`. Desplegado en servidor propio con Coolify, detrás de nginx.
 
-El diseño es «Ficha técnica» en negativo: papel carbón, tinta clara, una
-grotesca de sistema a tamaño cartel y un solo azul cobalto como tinta de
-imprenta. La retícula de 12 columnas queda a la vista con filetes.
+El diseño es «Herramientas a mano»: fondo claro neutro con una trama halftone
+que se carga en las esquinas y se revela bajo el cursor, una grotesca con
+carácter (Schibsted Grotesk) y una mono (IBM Plex Mono), alojadas en el propio
+sitio con `@fontsource`, y el cobalto como único acento. La navegación es una
+pill que parte como notch pegado arriba y se despega al bajar, como la de Atic.
 
 ## Desarrollo
 
@@ -101,3 +103,21 @@ animado, y pasar por el optimizador los rompería.
 - **`prefers-reduced-motion`** apaga el parpadeo del cursor, la entrada del
   titular y de la tira, el recorrido del visor, el paseo del gato, las
   transiciones y el scroll suave.
+
+
+## Herramientas de Atic
+
+Las pestañas de la pill de Atic en la portada salen de `aticTools` en
+`src/data/site.ts`. Cada herramienta muestra su medio real: `shot` (captura),
+`video` (en `public/video/`) o `steps`, un esquema en tres pasos dibujado en
+código para las que todavía no tienen captura de la versión GPUI. No uses
+capturas de la versión anterior en Tauri.
+
+## Proyectos en la portada
+
+- Atic tiene su propio capítulo.
+- Los proyectos con `client: true` van a la lista compacta de clientes.
+- El resto va a «Proyectos propios», con `highlights` como lista de puntos. Atic
+  para Android, gpui-m3, Halftone Studio y Pet Float tienen una vitrina propia
+  (trailer, galería, trama en vivo y el gato); los demás muestran su captura.
+- `video`, `docs` e `install` son opcionales y la ficha también los usa.

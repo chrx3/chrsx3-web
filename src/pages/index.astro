@@ -1,27 +1,21 @@
 ---
 import { Picture } from 'astro:assets'
 import Base from '../layouts/Base.astro'
-import { meta, work, services, stack } from '../data/site'
+import { meta, work, aticTools, aticVersion } from '../data/site'
 
-const featured = work.find((w) => w.featured) ?? work[0]
-const pad = (n: number) => String(n).padStart(2, '0')
+const atic = work.find((w) => w.slug === 'atic')!
+/* Proyectos propios: todo lo que no es Atic (tiene su capítulo) ni sitio de cliente */
+const own = work.filter((w) => w.slug !== 'atic' && !w.client)
+const clients = work.filter((w) => w.client)
+
 const mail = `mailto:${meta.email}?subject=${encodeURIComponent('Proyecto — desde chrsx3.com')}`
-
-/* El orden de site.ts es la numeración del índice. Una captura más baja que el
-   marco del visor (una sola pantalla, no una página) se muestra quieta. */
-const rows = work.map((w, i) => ({
-  ...w,
-  no: pad(i + 1),
-  kind: [w.tag, w === featured && 'Destacado', w.year].filter(Boolean).join(' · '),
-  still: w.shot.height / w.shot.width < 1.2,
-}))
+const ext = { target: '_blank', rel: 'noopener' }
 
 const nav = [
-  { href: '#trabajo', label: 'Trabajo' },
-  { href: '#servicios', label: 'Servicios' },
-  { href: '#perfil', label: 'Perfil' },
-  { href: '#stack', label: 'Stack' },
-  { href: '#contacto', label: 'Hablemos', cta: true },
+  { href: '#atic', label: 'Atic', id: 'atic' },
+  { href: '#proyectos', label: 'Proyectos', id: 'proyectos' },
+  { href: '#clientes', label: 'Clientes', id: 'clientes', optional: true },
+  { href: '#contacto', label: 'Contacto', id: 'contacto', cta: true },
 ]
 
 const jsonLd = {
@@ -35,337 +29,596 @@ const jsonLd = {
   address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressCountry: 'CL' },
   sameAs: [meta.linkedin, meta.github],
 }
+
+/* El trazo de la Pizarra: contenido, no ícono, así que lleva su propia geometría */
+const markPath = 'M6 28 C 22 6, 38 34, 54 16 S 86 6, 100 24 L 112 14'
 ---
 
 <Base
-  title="Christian Alcántara — Ingeniero de software · Santiago de Chile"
+  title="Christian Alcántara — Hago las herramientas que me faltan"
   ogTitle="Christian Alcántara — Ingeniero de software"
   description={meta.description}
   path="/"
   nav={nav}
-  cat
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
   <!-- ===== portada ===== -->
-  <section class="wrap grid-12 hero" aria-labelledby="h-hero">
-    <div class="hero-meta">
-      <p class="label">00 — Ficha</p>
-      <dl>
-        <div>
-          <dt class="label">Nombre</dt>
-          <dd>{meta.name}</dd>
+  <header class="hero" id="inicio">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="mono hero-who">{meta.name} · {meta.city}</p>
+        <h1>Hago las herramientas que me <em>faltan</em>.</h1>
+        <p class="hero-sub">
+          Soy ingeniero de software y antes estudié diseño gráfico. Construyo con <strong>Claude, Codex y Cursor</strong>:
+          yo decido qué se hace, cómo se ve y cómo se mantiene. Lo que más uso, lo hice para mí.
+        </p>
+        <div class="od-cluster hero-actions">
+          <a class="btn btn-solid" href="#atic">Conocer Atic</a>
+          <a class="btn btn-line" href="#proyectos">Ver proyectos</a>
         </div>
-        <div>
-          <dt class="label">Alias</dt>
-          <dd>{meta.alias}</dd>
-        </div>
-        <div>
-          <dt class="label">Base</dt>
-          <dd>{meta.city}</dd>
-        </div>
-        <div class="wide-only">
-          <dt class="label">Enfoque</dt>
-          <dd>Sitios · Sistemas · Móvil</dd>
-        </div>
-        <div class="wide-only">
-          <dt class="label">Destacado</dt>
-          <dd><a href={`#p-${featured.slug}`}>{featured.name}, {featured.tag.toLowerCase()}</a></dd>
-        </div>
-      </dl>
-    </div>
-
-    <h1 class="hero-title" id="h-hero">
-      <span class="line"><span style="--i: 0">Construyo software</span></span>
-      <span class="line ind"><span style="--i: 1">para empresas</span></span>
-      <span class="line"><span style="--i: 2">y lo mantengo</span></span>
-      <span class="line ind"
-        ><span style="--i: 3" class="ink">corriendo<span class="caret" aria-hidden="true"></span></span
-      ></span>
-    </h1>
-
-    <div class="hero-foot">
-      <p class="hero-sub">
-        Sitios, sistemas internos y aplicaciones móviles. Hablas directo con quien escribe el código, y
-        lo dejo andando en servidor propio.
-      </p>
-      <div class="btns">
-        <a class="btn btn-solid" href={mail}>Escríbeme por correo <span class="arrow" aria-hidden="true">↗</span></a>
-        <a class="btn btn-line" href="#trabajo">Ver el índice <span class="arrow" aria-hidden="true">↓</span></a>
       </div>
+      <figure class="hero-media">
+        <video
+          src="/video/atic-capturas.mp4"
+          poster="/video/atic-capturas.jpg"
+          width="1280"
+          height="720"
+          muted
+          loop
+          playsinline
+          autoplay
+          data-autoplay
+          aria-label="Atic en uso: capturas de pantalla desde la pill flotante"></video>
+        <figcaption class="mono"><span>Atic, en mi escritorio</span><a href="#atic">Qué es →</a></figcaption>
+      </figure>
     </div>
-  </section>
+  </header>
 
-  <!-- ===== tira: todos los proyectos, arriba del pliegue ===== -->
-  <nav class="strip" aria-label="Proyectos">
-    <ol>
-      {
-        rows.map((w, i) => (
-          <li style={`--i: ${i}`}>
-            <a href={`#p-${w.slug}`}>
-              <span class="cap">
-                <b>{w.no}</b>
-                <span>{w.tag}</span>
-              </span>
-              <span class="thumb">
-                <Picture
-                  src={w.shotTop}
-                  formats={['avif', 'webp']}
-                  widths={[380, 760]}
-                  sizes="(max-width: 900px) 68vw, (min-width: 1440px) 230px, 16vw"
-                  alt=""
-                  loading={i < 3 ? 'eager' : 'lazy'}
-                  decoding="async"
-                />
-              </span>
-              <span class="nm">{w.name}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ol>
-  </nav>
+  <!-- ===== Atic ===== -->
+  <section class="dark chapter" id="atic" aria-labelledby="h-atic">
+    <div class="wrap">
+      <div class="atic-head">
+        <div class="od-stack" style="--od-gap: var(--s3)">
+          <p class="mono kicker">Herramienta propia · open source</p>
+          <h2 id="h-atic">Atic</h2>
+        </div>
+        <div class="od-stack" style="--od-gap: var(--s4)">
+          <p class="lede">
+            Una caja de herramientas de escritorio que vive en una pill flotante, en el notch del Mac y en atajos globales.
+            Sin ir a buscar una ventana.
+          </p>
+          <ul class="od-cluster facts mono">
+            <li>Windows y macOS</li>
+            <li>Rust + GPUI</li>
+            <li>Transcripción local con Whisper</li>
+            <li>Licencia MIT</li>
+          </ul>
+        </div>
+      </div>
 
-  <!-- ===== trabajo ===== -->
-  <section class="wrap section" id="trabajo" aria-labelledby="h-trabajo">
-    <header class="grid-12 sec-head">
-      <p class="label">01 — Índice · {work.length} proyectos</p>
-      <h2 id="h-trabajo">Trabajo</h2>
-    </header>
-
-    <div class="grid-12 work">
-      <ol class="index">
-        {
-          rows.map((w, i) => (
-            <li
-              class:list={['row', i === 0 && 'is-on']}
-              id={`p-${w.slug}`}
-              data-shot={w.slug}
-              data-host={w.host}
-              data-no={w.no}
-            >
-              <a class="row-link" href={`/trabajo/${w.slug}/`}>
-                <span class="no">{w.no}</span>
-                <span class="nm" transition:name={`name-${w.slug}`}>
-                  {w.name}
-                </span>
-                <span class="host">{w.host}</span>
-                <span class="kind">{w.kind}</span>
-                <span class="line">{w.line}</span>
-                <span class="mthumb">
-                  <Picture
-                    src={w.shotTop}
-                    formats={['avif', 'webp']}
-                    widths={[380, 760]}
-                    sizes="(max-width: 1000px) calc(100vw - 6rem), 760px"
-                    alt={`Captura de ${w.name}`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </span>
-              </a>
-
-              {w.features?.length ? (
-                <div class="feat">
-                  {w.detail && <p class="feat-detail">{w.detail}</p>}
-
-                  {w.stack?.length ? (
-                    <ul class="chips" aria-label={`Stack de ${w.name}`}>
-                      {w.stack.map((s) => (
-                        <li>{s}</li>
-                      ))}
-                      {w.role && <li>Rol: {w.role}</li>}
-                    </ul>
-                  ) : null}
-
-                  <ul class="feats">
-                    {w.features.map((f) => (
-                      <li>
-                        <h3>{f.title}</h3>
-                        <p>{f.body}</p>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div class="btns">
-                    {w.downloads?.map((d) => (
-                      <a class="btn btn-solid" href={d.url} target="_blank" rel="noopener">
-                        {d.label} <span class="arrow" aria-hidden="true">↓</span>
-                      </a>
-                    ))}
-                    <a class="btn btn-line" href={w.url} target="_blank" rel="noopener">
-                      {w.cta ?? `Abrir ${w.host}`} <span class="arrow" aria-hidden="true">↗</span>
-                    </a>
-                  </div>
-                  {w.shotNote && <p class="label note">{w.shotNote}</p>}
-                </div>
-              ) : null}
-            </li>
-          ))
-        }
+      <ol class="story">
+        <li>
+          <p class="mono kicker">Por qué existe</p>
+          <h3>Las herramientas estaban, pero funcionaban mal.</h3>
+          <p>
+            Windows trae utilidades para casi todo, pero muchas fallan o estorban. Y en las reuniones me pedían anotar
+            mientras tenía que estar concentrado en lo que se hablaba: dos cosas a la vez.
+          </p>
+        </li>
+        <li>
+          <p class="mono kicker">Cómo creció</p>
+          <h3>Cada día aparecía algo que quería tener a mano.</h3>
+          <p>
+            Fui planificando cada herramienta según lo que me faltaba en el trabajo, y las quise lo más livianas posible:
+            siempre a la vista, accesibles con un atajo, sin abrir otra aplicación.
+          </p>
+        </li>
       </ol>
 
-      <!-- Decorativo: repite lo que ya dice cada fila, por eso queda fuera del árbol
-           accesible. Solo existe en escritorio: en móvil está en display:none y sus
-           imágenes lazy nunca se piden. -->
-      <figure class="viewer" aria-hidden="true">
-        <div class="chrome"><i></i><i></i><i></i><output id="viewer-host">{rows[0].host}</output></div>
-        <div class="viewer-frame">
+      <blockquote class="quote">
+        Lo más interesante fue descubrir cuánto mejora el trabajo cuando las herramientas están a mano.
+      </blockquote>
+      <p class="mono quote-by">— Lo que aprendí haciendo Atic</p>
+
+      <!-- La pill interactiva: un panel por herramienta, renderizado acá; el script
+           solo cambia cuál se ve. Sin JS se ve el primero. -->
+      <div class="tools">
+        <h3>Lo que hay en la pill</h3>
+        <p>Toca cada herramienta para ver qué hace.</p>
+
+        <div class="toolbar" role="tablist" aria-label="Herramientas de Atic" id="toolbar">
           {
-            rows.map((w, i) => (
-              <Picture
-                src={w.shot}
-                formats={['avif', 'webp']}
-                widths={[560, 1120]}
-                sizes="(min-width: 1440px) 556px, 39vw"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                class:list={[i === 0 && 'is-on', w.still && 'is-still']}
-                data-shot={w.slug}
-              />
+            aticTools.map((t, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-${t.id}`}
+                aria-controls={`panel-${t.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+              >
+                {t.name}
+              </button>
             ))
           }
         </div>
-        <figcaption class="label">
-          <span id="viewer-cap">{rows[0].still ? 'Captura de pantalla' : 'Captura de página completa'}</span>
-          <span id="viewer-no">{rows[0].no} / {pad(rows.length)}</span>
-        </figcaption>
-      </figure>
-    </div>
-  </section>
 
-  <!-- ===== servicios ===== -->
-  <section class="on-cobalt" id="servicios" aria-labelledby="h-servicios">
-    <div class="wrap section">
-      <header class="grid-12 sec-head">
-        <p class="label">02 — Servicios</p>
-        <h2 id="h-servicios">Qué hago</h2>
-      </header>
-
-      <ol class="services">
         {
-          services.map((s, i) => (
-            <li class="service">
-              <span class="idx" aria-hidden="true">{pad(i + 1)}</span>
-              <h3>{s.title}</h3>
-              <p>{s.body}</p>
-            </li>
+          aticTools.map((t, i) => (
+            <div
+              class="tool-panel"
+              id={`panel-${t.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${t.id}`}
+              tabindex="0"
+              hidden={i !== 0}
+            >
+              <div class="copy">
+                <p class="mono key">{t.key}</p>
+                <h4>{t.name}</h4>
+                <p>{t.body}</p>
+              </div>
+              <figure class="tool-shot">
+                {t.shot && (
+                  <Picture
+                    src={t.shot}
+                    formats={['avif', 'webp']}
+                    widths={[Math.min(t.shot.width, 760), t.shot.width]}
+                    sizes="(min-width: 1024px) 680px, calc(100vw - 6rem)"
+                    alt={t.alt ?? ''}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                )}
+                {t.video && (
+                  <video
+                    data-src={t.video.src}
+                    poster={t.video.poster}
+                    width="1280"
+                    height="720"
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    aria-label={t.alt}
+                  />
+                )}
+                {t.steps && (
+                  <ol class="steps" aria-label={`Cómo funciona: ${t.name}`}>
+                    {t.steps.map((s, n) => (
+                      <li>
+                        <span class="mono">{n + 1}</span>
+                        {s.visual === 'key' && (
+                          <span class="keys" aria-hidden="true">
+                            <kbd>Atajo</kbd>
+                          </span>
+                        )}
+                        {s.visual === 'wave' && (
+                          <span class="wave" aria-hidden="true">
+                            <i /><i /><i /><i /><i /><i /><i />
+                          </span>
+                        )}
+                        {s.visual === 'caret' && (
+                          <span class="caret-line" aria-hidden="true">
+                            {s.label}
+                            <b />
+                          </span>
+                        )}
+                        {s.visual === 'mark' && (
+                          <span class="mark" aria-hidden="true">
+                            <svg viewBox="0 0 120 40" width="120" height="40">
+                              <path d={markPath} fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                          </span>
+                        )}
+                        <span>{s.text}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                <figcaption class="mono">{t.caption}</figcaption>
+              </figure>
+            </div>
           ))
         }
-      </ol>
+      </div>
 
-      <p class="direct">Hablas directo con quien escribe el código.</p>
-    </div>
-  </section>
-
-  <!-- ===== perfil ===== -->
-  <section class="wrap section" id="perfil" aria-labelledby="h-perfil">
-    <header class="grid-12 sec-head">
-      <p class="label">03 — Perfil</p>
-      <h2 id="h-perfil">Sobre mí</h2>
-    </header>
-
-    <div class="grid-12 profile">
-      <dl class="sheet-aside">
-        <div class="sheet-row">
-          <dt class="label">Primero</dt>
-          <dd>Diseño gráfico · Liceo Tecnológico Enrique Kirberg</dd>
+      <div class="get">
+        <h3>Pruébalo. Es gratis y corre en tu equipo.</h3>
+        <div class="od-cluster btns">
+          {
+            atic.downloads?.map((d) => (
+              <a class="btn btn-solid" href={d.url} {...ext}>
+                {d.label}
+              </a>
+            ))
+          }
+          <a class="btn btn-line" href={atic.url} {...ext}>Código en GitHub</a>
         </div>
-        <div class="sheet-row">
-          <dt class="label">Después</dt>
-          <dd>Ingeniería Informática · Duoc UC</dd>
-        </div>
-        <div class="sheet-row">
-          <dt class="label">Desde 2023</dt>
-          <dd>Full-stack · TSG Environmental Chile</dd>
-        </div>
-        <div class="sheet-row">
-          <dt class="label">En paralelo</dt>
-          <dd>Clientes propios · servidor propio</dd>
-        </div>
-      </dl>
-
-      <div class="sheet-main profile-text">
-        <p>
-          Me llamo <strong>{meta.name}</strong> y vivo en Santiago. Estudié
-          <strong>diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después
-          <strong>Ingeniería Informática en Duoc UC</strong>. Esa mezcla es la razón de que me importe
-          tanto cómo se ve un sistema como si se cae.
-        </p>
-        <p>
-          Desde 2023 trabajo como <strong>desarrollador full-stack en TSG Environmental Chile</strong>, en
-          un equipo de dos personas del área de Innovación y Desarrollo. Revivo sistemas heredados, levanto
-          aplicaciones móviles y sostengo un volumen alto de proyectos con React, Next.js y Python.
-        </p>
-        <p>
-          En paralelo llevo mis propios clientes y proyectos. Administro el servidor donde corren:
-          dominios, certificados, despliegues y monitoreo.
+        <p class="mono note">
+          Último release {aticVersion} · Sin cuentas: el audio se graba y se transcribe en tu equipo ·
+          <a href="/trabajo/atic/">Ficha completa</a>
         </p>
       </div>
     </div>
   </section>
 
-  <!-- ===== stack ===== -->
-  <section class="wrap section" id="stack" aria-labelledby="h-stack">
-    <header class="grid-12 sec-head">
-      <p class="label">04 — Especificaciones</p>
-      <h2 id="h-stack">Stack</h2>
-    </header>
-
-    <div class="grid-12 spec">
-      <p class="sheet-aside spec-intro">{meta.description}</p>
-      <dl class="sheet-main">
-        {
-          Object.entries(stack).map(([group, items]) => (
-            <div class="sheet-row">
-              <dt class="label">{group}</dt>
-              <dd>
-                {items.map((item) => (
-                  <span>{item}</span>
-                ))}
-              </dd>
-            </div>
-          ))
-        }
-      </dl>
+  <!-- ===== método ===== -->
+  <section class="method" aria-labelledby="h-metodo">
+    <div class="wrap method-grid">
+      <h2 id="h-metodo">Cómo trabajo con IA</h2>
+      <div class="cols">
+        <p>
+          <strong>Escribo con agentes, no a ciegas.</strong> Claude, Codex y Cursor escriben gran parte del código. Yo defino
+          qué problema resolver, cómo debe sentirse la herramienta y dónde no se acepta un atajo.
+        </p>
+        <p>
+          <strong>Lo que publico, lo uso y lo mantengo.</strong> Atic es mi herramienta de todos los días, y los sitios de
+          clientes corren en un servidor que administro yo: dominios, certificados, despliegues y monitoreo.
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- ===== contacto ===== -->
-  <section class="contact" id="contacto" aria-labelledby="h-contacto">
-    <div class="wrap section">
-      <header class="grid-12 sec-head">
-        <p class="label">05 — Contacto</p>
-        <h2 id="h-contacto">Cuéntame qué necesitas.</h2>
+  <!-- ===== proyectos propios ===== -->
+  <section class="light" id="proyectos" aria-labelledby="h-proyectos">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="mono kicker">Más cosas que hice para usar</p>
+        <h2 id="h-proyectos">Proyectos propios</h2>
       </header>
 
-      <a class="big-cta" href={mail}
-        ><span class="ink">Hablemos</span> <span class="arrow" aria-hidden="true">↗</span><span class="sr-only">
-          por correo</span
-        ></a
-      >
+      {
+        own.map((p, i) => {
+          const isAndroid = p.slug === 'atic-android'
+          const isM3 = p.slug === 'gpui-m3'
+          const isHalftone = p.slug === 'halftone-studio'
+          const isPet = p.slug === 'pet-float'
+          const external = !p.url.startsWith('mailto:')
+          return (
+            <article class:list={['project', isAndroid && 'wide', i % 2 === 1 && 'flip']} aria-labelledby={`h-${p.slug}`}>
+              <div class="info">
+                <p class="mono tag">{[p.tag, isAndroid ? p.host : p.year].filter(Boolean).join(' · ')}</p>
+                <h3 id={`h-${p.slug}`}>{p.name}</h3>
+                <p class="what">{p.line}</p>
+                {p.highlights?.length ? (
+                  <ul class="bits">
+                    {p.highlights.map((h) => (
+                      <li>{h}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {p.stack?.length ? <p class="mono stack">{p.stack.join(' · ')}</p> : null}
+                {p.install && (
+                  <div class="cargo">
+                    <code id={`cmd-${p.slug}`}>{p.install}</code>
+                    <button type="button" class="copy-cmd" data-target={`cmd-${p.slug}`} aria-describedby={`cmd-${p.slug}`}>
+                      Copiar
+                    </button>
+                  </div>
+                )}
+                <div class="od-cluster actions">
+                  <a class="btn btn-solid" href={p.url} {...(external ? ext : {})}>
+                    {p.cta ?? `Abrir ${p.host}`}
+                  </a>
+                  {p.docs && (
+                    <a class="btn btn-line" href={p.docs} {...ext}>
+                      Documentación
+                    </a>
+                  )}
+                  {isAndroid && (
+                    <a class="btn btn-line" href="#atic">
+                      Ver Atic para PC
+                    </a>
+                  )}
+                  <a class="link more" href={`/trabajo/${p.slug}/`}>
+                    Ficha
+                  </a>
+                </div>
+              </div>
 
-      <ul class="channels">
-        <li>
-          <a href={mail}>
-            <span class="label">Correo</span>
-            <span class="v">{meta.email}</span>
-          </a>
-        </li>
-        <li>
-          <a href={meta.linkedin} target="_blank" rel="noopener">
-            <span class="label">LinkedIn</span>
-            <span class="v">{meta.name} ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href={meta.github} target="_blank" rel="noopener">
-            <span class="label">GitHub</span>
-            <span class="v">{meta.github.replace('https://github.com/', '')} ↗</span>
-          </a>
-        </li>
+              {isAndroid && p.video && (
+                <div class="android-media">
+                  <div class="trailer">
+                    <video class="h" src={p.video.src} poster={p.video.poster} width="1280" height="720" controls preload="none" playsinline aria-label={p.video.label} />
+                    {p.video.vertical && (
+                      <video class="v" src={p.video.vertical} poster={p.video.verticalPoster} width="720" height="1280" controls preload="none" playsinline aria-label={`${p.video.label}, versión vertical`} />
+                    )}
+                  </div>
+                </div>
+              )}
+              {isAndroid && (
+                <ul class="phones od-rail" aria-label={`Pantallas de ${p.name}`}>
+                  {[{ src: p.shot, caption: p.shotNote ?? p.name }, ...(p.gallery ?? [])].map((g) => (
+                    <li>
+                      <Picture src={g.src} formats={['avif', 'webp']} widths={[270, 540]} sizes="240px" alt={g.caption} loading="lazy" decoding="async" />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {isM3 && (
+                <div class="m3">
+                  <figure class="shot m3-main">
+                    <Picture src={p.shot} formats={['avif', 'webp']} widths={[720, 1280]} sizes="(min-width: 1024px) 700px, calc(100vw - 2rem)" alt={`${p.name}: ${p.shotNote}`} loading="lazy" decoding="async" />
+                  </figure>
+                  <div class="m3-grid">
+                    {p.gallery?.map((g) => (
+                      <figure class="shot">
+                        <Picture src={g.src} formats={['avif', 'webp']} widths={[320, 640]} sizes="(min-width: 1024px) 230px, 30vw" alt={g.caption} loading="lazy" decoding="async" />
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {isHalftone && (
+                <div class="ht">
+                  <div class="ht-stage">
+                    <canvas id="ht-canvas" width="1280" height="720" role="img" aria-label="Texto «a mano» convertido en trama de puntos cobalto, generado en vivo" />
+                  </div>
+                  <div class="od-cluster ht-controls">
+                    <label for="ht-size">
+                      Tamaño de trama
+                      <input type="range" id="ht-size" min="6" max="24" step="1" value="12" />
+                    </label>
+                    <div class="seg" role="group" aria-label="Forma del punto">
+                      <button type="button" data-shape="circle" aria-pressed="true">Círculo</button>
+                      <button type="button" data-shape="square" aria-pressed="false">Cuadrado</button>
+                    </div>
+                  </div>
+                  <p class="mono ht-cap">Una muestra de lo que hace, dibujada aquí mismo.</p>
+                </div>
+              )}
+
+              {isPet && (
+                <div class="cat-stage">
+                  <div class="shot">
+                    <Picture src={p.shotTop} formats={['avif', 'webp']} widths={[380, 760]} sizes="(min-width: 1024px) 700px, calc(100vw - 2rem)" alt={`Ficha de ${p.name} con el gato de píxeles`} loading="lazy" decoding="async" />
+                  </div>
+                  <div class="cat-run" id="cat-run" aria-hidden="true">
+                    <div class="cat" id="cat">
+                      <img class="walk" src="/cat/walk.webp" width="138" height="107" alt="" hidden />
+                      <img class="sit" src="/cat/sit.png" width="160" height="160" alt="" />
+                    </div>
+                  </div>
+                  <div class="od-row cat-ctrl">
+                    <button type="button" id="cat-go">Que camine</button>
+                    <span class="mono" id="cat-status" aria-live="polite">Sentado.</span>
+                  </div>
+                </div>
+              )}
+
+              {!isAndroid && !isM3 && !isHalftone && !isPet && (
+                <div class="shot">
+                  <Picture src={p.shotTop} formats={['avif', 'webp']} widths={[380, 760]} sizes="(min-width: 1024px) 700px, calc(100vw - 2rem)" alt={`Portada de ${p.host}`} loading="lazy" decoding="async" />
+                </div>
+              )}
+            </article>
+          )
+        })
+      }
+    </div>
+  </section>
+
+  <!-- ===== clientes ===== -->
+  <section class="clients" id="clientes" aria-labelledby="h-clientes">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="mono kicker">Hechos y mantenidos por mí</p>
+        <h2 id="h-clientes">Sitios para clientes</h2>
+      </header>
+      <ul class="client-list">
+        {
+          clients.map((c) => (
+            <li>
+              <a class="client" href={`/trabajo/${c.slug}/`}>
+                <Picture src={c.shotTop} formats={['avif', 'webp']} widths={[180, 360]} sizes="180px" alt="" loading="lazy" decoding="async" />
+                <span class="od-field">
+                  <strong>{c.name}</strong>
+                  <span class="mono host">{c.host}</span>
+                  <span class="desc">{c.line}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </section>
+
+  <!-- ===== sobre mí + contacto ===== -->
+  <section class="about" id="contacto" aria-labelledby="h-contacto">
+    <div class="wrap about-grid">
+      <div>
+        <p>
+          Estudié <strong>diseño gráfico</strong> en el Liceo Tecnológico Enrique Kirberg y después
+          <strong>Ingeniería Informática en Duoc UC</strong>. Por eso me importa tanto cómo se ve una herramienta como si se cae.
+        </p>
+        <p>
+          Desde 2023 soy <strong>desarrollador full-stack en TSG Environmental Chile</strong>, en un equipo de dos personas:
+          revivimos sistemas heredados, hacemos apps móviles y sostenemos muchos proyectos a la vez. En paralelo llevo mis
+          propios clientes.
+        </p>
+      </div>
+      <div class="contact">
+        <h2 id="h-contacto">¿Te falta una herramienta?</h2>
+        <a class="link mail" href={mail}>{meta.email}</a>
+        <ul class="od-cluster">
+          <li><a class="link" href={meta.github} {...ext}>GitHub</a></li>
+          <li><a class="link" href={meta.linkedin} {...ext}>LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
 </Base>
+
+<script>
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  /* ---------- video de portada: sin autoplay si el usuario pide calma ---------- */
+  document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]').forEach((v) => {
+    if (calm) { v.removeAttribute('autoplay'); v.pause(); v.controls = true }
+  })
+
+  /* ---------- la pill de Atic: pestañas ---------- */
+  const bar = document.getElementById('toolbar')
+  if (bar) {
+    const tabs = [...bar.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+    const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls') ?? '')!)
+    const select = (i: number, focus: boolean) => {
+      tabs.forEach((b, j) => {
+        const on = j === i
+        b.setAttribute('aria-selected', String(on))
+        b.tabIndex = on ? 0 : -1
+        const panel = panels[j]
+        if (!panel) return
+        panel.hidden = !on
+        // El video se carga recién cuando su pestaña se abre, y se pausa al salir
+        const video = panel.querySelector<HTMLVideoElement>('video[data-src]')
+        if (video) {
+          if (on) {
+            if (!video.getAttribute('src')) video.src = video.dataset.src ?? ''
+            video.controls = calm
+            if (!calm) video.play().catch(() => { video.controls = true })
+          } else {
+            video.pause()
+          }
+        }
+        if (on && !calm) { panel.classList.remove('is-in'); void panel.offsetWidth; panel.classList.add('is-in') }
+      })
+      if (focus) { tabs[i].focus(); tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' }) }
+    }
+    bar.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[role="tab"]')
+      if (b) select(tabs.indexOf(b), false)
+    })
+    bar.addEventListener('keydown', (e) => {
+      const cur = tabs.findIndex((b) => b.getAttribute('aria-selected') === 'true')
+      let n: number | null = null
+      if (e.key === 'ArrowRight') n = (cur + 1) % tabs.length
+      if (e.key === 'ArrowLeft') n = (cur - 1 + tabs.length) % tabs.length
+      if (e.key === 'Home') n = 0
+      if (e.key === 'End') n = tabs.length - 1
+      if (n !== null) { e.preventDefault(); select(n, true) }
+    })
+  }
+
+  /* ---------- copiar comandos de instalación ---------- */
+  document.querySelectorAll<HTMLButtonElement>('.copy-cmd').forEach((btn) => {
+    const cmd = document.getElementById(btn.dataset.target ?? '')
+    if (!cmd) return
+    let timer: number | undefined
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(cmd.textContent?.trim() ?? '')
+        btn.textContent = 'Copiado'
+      } catch {
+        const r = document.createRange()
+        r.selectNodeContents(cmd)
+        const sel = getSelection()
+        sel?.removeAllRanges()
+        sel?.addRange(r)
+        btn.textContent = 'Seleccionado'
+      }
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => { btn.textContent = 'Copiar' }, 1800)
+    })
+  })
+
+  /* ---------- Halftone: trama en vivo sobre un canvas propio ---------- */
+  const cv = document.getElementById('ht-canvas') as HTMLCanvasElement | null
+  const sizeInput = document.getElementById('ht-size') as HTMLInputElement | null
+  const shapeBtns = [...document.querySelectorAll<HTMLButtonElement>('.seg [data-shape]')]
+  const ctx = cv?.getContext('2d')
+  if (cv && ctx) {
+    const W = cv.width, H = cv.height
+    const src = document.createElement('canvas')
+    src.width = W
+    src.height = H
+    const s = src.getContext('2d', { willReadFrequently: true })!
+    let shape = 'circle'
+    const paintSource = () => {
+      s.fillStyle = '#fff'
+      s.fillRect(0, 0, W, H)
+      const lg = s.createLinearGradient(0, 0, W, H)
+      lg.addColorStop(0, '#000')
+      lg.addColorStop(1, '#bbb')
+      s.fillStyle = lg
+      s.font = `800 ${Math.round(H * 0.42)}px "Schibsted Grotesk", "Helvetica Neue", sans-serif`
+      s.textAlign = 'center'
+      s.textBaseline = 'middle'
+      s.fillText('a mano', W / 2, H * 0.5)
+      const r = s.createRadialGradient(W * 0.86, H * 0.18, 0, W * 0.86, H * 0.18, H * 0.34)
+      r.addColorStop(0, 'rgba(0,0,0,0.85)')
+      r.addColorStop(1, 'rgba(0,0,0,0)')
+      s.fillStyle = r
+      s.fillRect(0, 0, W, H)
+    }
+    const draw = () => {
+      const cell = Number(sizeInput?.value ?? 12) * 2
+      const data = s.getImageData(0, 0, W, H).data
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, W, H)
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2a35e0'
+      for (let y = cell / 2; y < H; y += cell) {
+        for (let x = cell / 2; x < W; x += cell) {
+          const k = ((y | 0) * W + (x | 0)) * 4
+          const dark = 1 - (data[k] * 0.299 + data[k + 1] * 0.587 + data[k + 2] * 0.114) / 255
+          if (dark < 0.04) continue
+          const r = (cell / 2) * Math.sqrt(dark) * 1.05
+          if (shape === 'circle') { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill() }
+          else ctx.fillRect(x - r, y - r, r * 2, r * 2)
+        }
+      }
+    }
+    const start = () => { paintSource(); draw() }
+    start()
+    document.fonts?.ready.then(start)
+    sizeInput?.addEventListener('input', draw)
+    shapeBtns.forEach((b) => b.addEventListener('click', () => {
+      shape = b.dataset.shape ?? 'circle'
+      shapeBtns.forEach((o) => o.setAttribute('aria-pressed', String(o === b)))
+      draw()
+    }))
+  }
+
+  /* ---------- Pet Float: el gato cruza y se sienta ---------- */
+  const run = document.getElementById('cat-run')
+  const cat = document.getElementById('cat')
+  const go = document.getElementById('cat-go') as HTMLButtonElement | null
+  const status = document.getElementById('cat-status')
+  if (run && cat && go) {
+    const walk = cat.querySelector<HTMLImageElement>('.walk')
+    const sit = cat.querySelector<HTMLImageElement>('.sit')
+    let side = 0 // 0 = izquierda, 1 = derecha
+    const setSitting = () => {
+      if (walk) walk.hidden = true
+      if (sit) sit.hidden = false
+      cat.classList.remove('is-walking')
+      go.disabled = false
+      if (status) status.textContent = 'Sentado.'
+    }
+    const stroll = () => {
+      if (calm) { if (status) status.textContent = 'Sentado (movimiento reducido activo).'; return }
+      const max = Math.max(0, run.clientWidth - 160 - 48)
+      side = side ? 0 : 1
+      if (walk) { walk.hidden = false; walk.style.transform = side ? 'none' : 'scaleX(-1)' }
+      if (sit) sit.hidden = true
+      go.disabled = true
+      if (status) status.textContent = 'Caminando…'
+      cat.classList.add('is-walking')
+      requestAnimationFrame(() => cat.style.setProperty('--x', `${side ? max : 0}px`))
+    }
+    cat.addEventListener('transitionend', setSitting)
+    go.addEventListener('click', stroll)
+    if (!calm && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => {
+        if (es[0].isIntersecting) { io.disconnect(); stroll() }
+      }, { threshold: 1 })
+      io.observe(run)
+    }
+    if (calm) go.disabled = true
+  }
+</script>
