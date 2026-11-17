@@ -144,6 +144,27 @@ const workEn: Record<string, ProjectText> = {
       { title: 'Export', body: 'PNGs up to 2800 px per side, generated off the main thread.' },
     ],
   },
+  'cuanto-sale': {
+    tag: 'My own product',
+    hostLabel: 'Web app',
+    line: 'Scan a barcode at the supermarket and see what the same product costs at other Chilean chains. Add up your cart and it tells you where it comes out cheapest, delivery included.',
+    role: 'Author',
+    cta: 'Open Cuánto Sale',
+    shotNote: 'Live · free, no account and no scan limit',
+    highlights: [
+      'Compares 10 chains: Jumbo, Santa Isabel, Unimarc, Alvi, Lider, Tottus, aCuenta, SPID, Cugat and Eltit.',
+      'Every night it checks several chains’ catalogs and keeps the history of every price.',
+      'A native Android app and a web app you can install, with the cart saved even without signal.',
+    ],
+    features: [
+      { title: 'Scanner', body: 'The camera reads the barcode and shows the product’s price at each chain. It works from the app or the browser, with nothing to install.' },
+      { title: 'Cart', body: 'Add what goes into your cart, see the total right away and find out which supermarket comes out cheapest, with delivery for your area.' },
+      { title: 'Price history', body: 'Every price is stored, so you can tell whether a “deal” really lowers the price or just brings it back to normal.' },
+      { title: 'Cuánto Sale basket', body: 'A daily index of 25 products compared across chains to see which one is cheapest on average.' },
+      { title: 'Receipts', body: 'The app reads your receipt with on-device OCR and keeps track of your purchases.' },
+      { title: 'Reports', body: 'If a price is wrong or something is out of stock, report it with one tap and it gets fixed for everyone.' },
+    ],
+  },
   pedi: {
     tag: 'My own product',
     line: 'A venue’s menu behind a QR code. Customers build their order on their phone and it lands, ready, in the venue’s WhatsApp — no middleman apps and no commission per sale.',

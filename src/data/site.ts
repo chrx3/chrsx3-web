@@ -2,6 +2,7 @@
    ficha la muestra sin recortar. `shotTop` es solo el encabezado en 16:10, para
    la tira sobre el pliegue y las miniaturas del índice en móvil. */
 import atic from '../assets/shots/atic-code.png'
+import cuantosale from '../assets/shots/cuantosale.jpg'
 import halftone from '../assets/shots/halftone.jpg'
 import halftone3d from '../assets/shots/halftone-3d.jpg'
 import hminova from '../assets/shots/hminova.jpg'
@@ -10,6 +11,7 @@ import pedi from '../assets/shots/pedi.jpg'
 import petfloat from '../assets/shots/petfloat.jpg'
 
 import aticTop from '../assets/shots/reel/atic-code.png'
+import cuantosaleTop from '../assets/shots/reel/cuantosale.jpg'
 import halftoneTop from '../assets/shots/reel/halftone.jpg'
 import hminovaTop from '../assets/shots/reel/hminova.jpg'
 import katemiTop from '../assets/shots/reel/katemi.jpg'
@@ -297,6 +299,54 @@ export const work = [
       {
         title: 'Exportación',
         body: 'PNG de hasta 2800 px por lado, generado fuera del hilo principal.',
+      },
+    ],
+  },
+  {
+    slug: 'cuanto-sale',
+    name: 'Cuánto Sale',
+    tag: 'Producto propio',
+    host: 'cuantosale.chrsx3.com',
+    hostLabel: 'App web',
+    url: 'https://cuantosale.chrsx3.com',
+    shot: cuantosale,
+    shotTop: cuantosaleTop,
+    line: 'Escaneas el código de barras en el súper y ves cuánto sale lo mismo en otras cadenas de Chile. Suma tu carro y te dice dónde te sale más barato, incluido el despacho.',
+    year: '2026',
+    role: 'Autor',
+    stack: ['Kotlin', 'Jetpack Compose', 'CameraX', 'ML Kit', 'Node.js', 'Astro', 'SQLite'],
+    cta: 'Abrir Cuánto Sale',
+    downloads: [{ label: 'Descargar para Android', url: 'https://cuantosale.chrsx3.com/app' }],
+    shotNote: 'En producción · gratis, sin cuenta y sin límite de escaneos',
+    highlights: [
+      'Compara 10 cadenas: Jumbo, Santa Isabel, Unimarc, Alvi, Lider, Tottus, aCuenta, SPID, Cugat y Eltit.',
+      'Cada noche revisa el catálogo de varias cadenas y guarda el historial de cada precio.',
+      'App Android nativa y web que se instala como app, con el carrito guardado sin señal.',
+    ],
+    features: [
+      {
+        title: 'Escáner',
+        body: 'La cámara lee el código de barras y muestra el precio del producto en cada cadena. Funciona desde la app o desde el navegador, sin instalar nada.',
+      },
+      {
+        title: 'Carrito',
+        body: 'Suma lo que echas al carro, muestra el total al tiro y calcula en qué supermercado te sale más barato, con el despacho según tu comuna.',
+      },
+      {
+        title: 'Historial de precios',
+        body: 'Cada precio queda guardado, así se ve si una «oferta» de verdad baja el precio o solo lo devuelve a lo de siempre.',
+      },
+      {
+        title: 'Canasta Cuánto Sale',
+        body: 'Un índice diario de 25 productos que se compara entre cadenas para ver cuál sale más barata en promedio.',
+      },
+      {
+        title: 'Boletas',
+        body: 'La app lee la boleta con OCR en el mismo teléfono y guarda tus compras.',
+      },
+      {
+        title: 'Reportes',
+        body: 'Si un precio no coincide o algo está agotado, se reporta con un toque y se corrige para todos.',
       },
     ],
   },
